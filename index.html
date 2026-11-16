@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d223b">
+  <title>TSP Heuristic Lab — Version 10</title>
+  <style>
+    :root{--navy:#102841;--ink:#1a324a;--muted:#748398;--teal:#06a89b;--tealDark:#008a81;--amber:#f2ac4e;--border:#e3ebf1;--bg:#f4f7fa;--panel:#fff;--red:#db695e;--green:#078f71;--shadow:0 6px 24px rgba(11,37,58,.055)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:14px;line-height:1.45}
+    button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #9adbd8;outline-offset:2px}
+    header{background:var(--navy);color:white;padding:26px max(24px,calc((100vw - 1490px)/2)) 20px;position:relative;overflow:hidden}
+    header:after{content:"";position:absolute;right:4%;top:-135px;border:1px solid #345168;width:380px;height:380px;border-radius:50%;pointer-events:none;box-shadow:0 0 0 70px rgba(255,255,255,.025),0 0 0 145px rgba(255,255,255,.018)}
+    .hero-top{display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1}.brand{font-weight:850;letter-spacing:.13em;font-size:12px;color:#62d6ca;display:flex;align-items:center;gap:10px}.brand-mark{background:#48c4b8;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:var(--navy);font-size:20px}.hero-badges{display:flex;gap:8px;flex-wrap:wrap}.hero-badges span{font-size:10px;letter-spacing:.09em;border:1px solid #456174;border-radius:999px;padding:5px 10px;color:#d0e4ed}
+    h1{font-size:clamp(26px,3.6vw,41px);letter-spacing:-.055em;font-weight:850;line-height:1.1;margin:22px 0 9px;position:relative;z-index:1}h1 em{font-style:normal;color:#65d7ca}.hero-sub{color:#bfd0de;max-width:720px;margin:0 0 6px;position:relative;z-index:1}
+    main{max-width:1650px;margin:auto;padding:22px 24px 44px}.layout{display:grid;grid-template-columns:300px minmax(0,1fr);align-items:start;gap:17px}.dashboard{min-width:0;display:grid;align-content:start;gap:17px}.dashboard-top{display:grid;grid-template-columns:minmax(0,1fr) 274px;align-items:start;gap:17px}.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);min-width:0}.section-head{padding:18px 20px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #edf1f5}.section-head h2{font-size:15px;margin:0;letter-spacing:-.025em;font-weight:800}.section-head .subtle{font-size:11px;color:var(--muted)}.card-body{padding:18px 18px 20px}.setup .card-body{padding-top:16px}.eyebrow{font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:10px;color:var(--muted)}.group{margin-bottom:20px}.group:last-child{margin-bottom:0}.field-label{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px;font-weight:800;margin-bottom:9px}.full-select{width:100%;height:41px;border:1px solid #d5e0e7;background:#fafdff;border-radius:8px;padding:0 11px;color:#172e42;font-weight:650}
+    .choice-list{display:grid;gap:7px}.choice{display:flex;align-items:flex-start;gap:10px;border:1px solid #dfe8ef;border-radius:9px;padding:10px 11px;cursor:pointer;transition:border-color .12s,background .12s,box-shadow .12s}.choice:has(input:checked){background:#eaf8f6;border-color:#34b6aa;box-shadow:0 0 0 1px #34b6aa20}.choice input{accent-color:var(--teal);margin:3px 0 0;flex-shrink:0}.choice strong{font-size:12px;display:block;font-weight:750}.choice small{font-size:10.5px;display:block;color:#77889a;line-height:1.35;margin-top:2px}
+    .alpha{padding:12px;background:#f3faf9;border:1px solid #d2eeeb;border-radius:10px;margin-top:10px}.range-head{display:flex;align-items:center;justify-content:space-between;font-weight:750;font-size:12px}.range-head output{color:var(--tealDark);font-weight:850;font-size:13px}.range-input{width:100%;accent-color:var(--teal);margin:12px 0 4px}.range-marks{display:flex;justify-content:space-between;color:#7a919d;font-size:9px;gap:4px}.hidden{display:none!important}
+    .triple{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.segment{border:1px solid #dfe8ef;padding:10px 3px;background:#fff;border-radius:8px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;line-height:1.3;min-width:0}.segment:has(input:checked){border-color:#22a99e;background:#e8f8f6;color:#007b72}.segment input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+    .number-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.number-grid label,.seed-row{display:block;color:#63798a;font-size:10.5px;font-weight:750}.number-grid input,.seed-row input{height:40px;border:1px solid #d7e3eb;border-radius:8px;width:100%;margin-top:5px;padding:0 10px;background:#fff;color:#19344a;font-weight:750}.number-grid input:focus,.seed-row input:focus{border-color:var(--teal)}.seed-row{margin-top:10px}.seed-row input{height:36px}
+    .button-main{border:0;background:var(--teal);border-radius:9px;color:white;padding:12px 16px;font-weight:850;display:flex;justify-content:center;align-items:center;gap:9px}.button-main:hover:not(:disabled){background:var(--tealDark)}.button-quiet{border:1px solid #d8e4ed;background:white;border-radius:9px;padding:11px 10px;color:#274358;font-weight:750}.button-quiet:hover:not(:disabled){background:#f5f9fb}.controls{display:block}.controls .button-main{width:100%}.control-footer{border-top:1px solid #e9f0f4;padding-top:15px;margin-top:17px}.small-annotation{color:var(--muted);font-size:10.5px;line-height:1.5;margin:10px 0 0}
+    .viz{overflow:hidden}.viz-toolbar{padding:12px 18px;border-bottom:1px solid #e9f0f4;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.instance-name{font-size:14px;font-weight:850}.instance-meta{font-size:11px;color:var(--muted);margin-left:8px}.view-switch{display:flex;gap:4px;background:#f1f5f8;border-radius:9px;padding:3px}.view-switch button{border:0;background:transparent;color:#718397;font-size:11px;font-weight:760;padding:7px 11px;border-radius:7px}.view-switch button.active{background:white;color:#1f4854;box-shadow:0 1px 5px #10394b15}
+    .canvas-area{padding:12px 17px 4px;position:relative}.map-background{background:radial-gradient(circle at 20% 10%,#f7fffe 0,#fafdff 43%,#f7fbfd 100%);border:1px solid #e9f1f5;border-radius:12px;position:relative;overflow:hidden}.map-background:before{content:"";background-image:linear-gradient(#dce8ee64 1px,transparent 1px),linear-gradient(90deg,#dce8ee64 1px,transparent 1px);background-size:31px 31px;position:absolute;inset:0;pointer-events:none}.canvas-area canvas{display:block;width:100%;height:440px;position:relative;z-index:1}.map-corner{position:absolute;left:30px;top:25px;color:#7993a7;font-size:9px;font-weight:850;letter-spacing:.12em;z-index:2}.map-legend{display:flex;gap:18px;justify-content:center;align-items:center;margin:13px 5px 15px;color:#6e8292;font-size:11px;font-weight:650;flex-wrap:wrap}.dot-key{display:inline-block;width:17px;height:3px;margin-right:6px;vertical-align:middle;border-radius:3px;background:var(--teal)}.dot-key.ref{background:var(--amber);border-top:2px dashed #ffb853;height:0}.dot-key.pin{width:8px;height:8px;background:#23445b;border-radius:50%}
+    .progress-strip{border-top:1px solid #edf1f5;padding:14px 17px;background:#fcfdfd}.progress-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px;font-size:11px;font-weight:730}.progress-meta span:last-child{color:var(--muted)}.progress-track{background:#e5edf1;height:7px;border-radius:99px;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,#22bcaa,#7bddd1);width:0%;transition:width .1s}.status-line{color:#6d8190;margin-top:8px;font-size:10.5px;min-height:16px}.status-line strong{color:#22435c}
+    .score .card-body{padding:17px}.score-label{font-size:10px;color:#748c9a;letter-spacing:.09em;font-weight:800;text-transform:uppercase}.score-main{font-size:34px;color:var(--navy);font-weight:850;line-height:1.15;letter-spacing:-.05em;margin:5px 0 3px;font-variant-numeric:tabular-nums}.score-small{font-size:11px;color:var(--muted)}.score-highlight{padding:15px;background:#ebf9f6;border:1px solid #d9f0ea;border-radius:11px;margin-bottom:18px}.score-highlight .score-main{color:#098d7e}.score-split{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px}.score-split>div{border:1px solid var(--border);border-radius:10px;padding:12px 11px}.score-split .score-main{font-size:23px}.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;background:#edf7f5;padding:5px 9px;color:#078d78;font-size:10px;font-weight:850}.chip.orange{background:#fff2df;color:#b66c19}.score-rule{height:1px;background:#edf1f5;margin:15px 0}.stat-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#6e8193;padding:7px 0;border-bottom:1px solid #f1f3f5}.stat-row:last-child{border:0}.stat-row strong{color:#204054;font-weight:850;font-variant-numeric:tabular-nums}.result-tip{margin-top:14px;background:#f5f7fb;border-radius:9px;padding:11px 12px;font-size:11px;color:#6a8090;line-height:1.55}.result-tip strong{color:#183c50}
+    .ref-toggle{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:720;margin:11px 0 0}.ref-toggle input{accent-color:#edaa4b}
+    .lower{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:17px;margin-top:0;min-width:0}.chart-pad{padding:15px 17px 17px}.chart-pad canvas{height:208px;display:block;width:100%}.chart-hint{color:var(--muted);font-size:11px;margin:5px 0 0}.table-wrap{overflow:auto;max-height:305px}.experiments{width:100%;border-collapse:collapse;text-align:left;white-space:nowrap}.experiments th{background:#f9fbfc;color:#7b8c9d;font-size:10px;text-transform:uppercase;letter-spacing:.065em;position:sticky;top:0;font-weight:800;padding:11px 13px}.experiments td{border-top:1px solid #edf1f4;padding:10px 13px;font-size:11px;color:#355267}.experiments td strong{color:#0f8577}.experiments .empty{height:160px;text-align:center;color:#9baab8;white-space:normal}.mini-actions{display:flex;gap:7px}.mini-actions button{border:1px solid #dfe8ee;background:#fff;border-radius:7px;padding:6px 8px;font-size:10.5px;color:#536f81;font-weight:800}.info-section{margin-top:18px;background:#eaf0f3;border:1px solid #dce5ed;border-radius:12px;padding:14px 20px;color:#557286}.info-section summary{font-weight:850;color:#29465e;cursor:pointer}.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:14px}.info-grid h3{font-size:12px;color:#163b50;margin:0 0 5px}.info-grid p{font-size:11px;margin:0;line-height:1.65}.credits{font-size:10px;color:#8095a2;margin-top:16px;text-align:center}.credits a{color:#4f8fa1;text-underline-offset:3px}
+    .toast{position:fixed;bottom:22px;right:22px;background:#153c51;color:#fff;border-radius:9px;padding:12px 16px;box-shadow:0 8px 30px #143e5330;font-size:12px;font-weight:700;max-width:min(400px,90vw);z-index:20;opacity:0;transform:translateY(8px);pointer-events:none;transition:all .2s}.toast.show{opacity:1;transform:translateY(0)}
+    @media(max-width:1120px){.layout{grid-template-columns:270px minmax(0,1fr)}.dashboard-top{grid-template-columns:minmax(0,1fr)}.score .card-body{display:grid;grid-template-columns:1fr 1fr;gap:12px}.score-highlight,.current-highlight,.score-split{margin:0}.score-rule{display:none}.score .stats{grid-column:span 2}.score .result-tip{grid-column:span 2;margin:0}.canvas-area canvas{height:380px}}
+    @media(max-width:960px){.lower{grid-template-columns:minmax(0,1fr)}.info-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:760px){header{padding:20px 17px 24px}header:after{display:none}.hero-badges{display:none}main{padding:12px 11px 35px}.layout,.dashboard-top,.lower{display:grid;grid-template-columns:1fr;gap:12px}.dashboard{gap:12px}.canvas-area{padding:10px}.canvas-area canvas{height:320px}.score .card-body{display:block}.score-highlight,.current-highlight,.score-split{margin-bottom:12px}.score .stats{margin-top:10px}.score .result-tip{margin-top:12px}.info-grid{grid-template-columns:1fr;gap:12px}.view-switch button{padding:6px 9px;font-size:10px}}    .escape-panel{border:1px solid #d8e9ed;border-radius:11px;background:#f7fafc;padding:12px;margin-top:10px}
+    .escape-panel .number-grid{margin-top:10px}
+    .escape-options{margin-top:10px;display:grid;gap:6px}
+    .escape-options .choice{background:white;padding:9px 10px}
+    .schedule-summary{color:#347e80;font-weight:700;font-size:10.5px;margin:10px 0 0;line-height:1.5}
+    .single-number{margin-top:9px;display:block;color:#63798a;font-size:11px;font-weight:760}
+    .single-number input{height:38px;width:100%;padding:0 10px;border:1px solid #d7e3eb;border-radius:8px;margin-top:5px;font-weight:750}
+    .notebook-note{padding:0px 17px 13px;color:#708799;font-size:10.5px;line-height:1.55;margin:0}
+    .run-detail-toggle{border:1px solid #cfe7e2;background:#f0fbf8;color:#168777;border-radius:6px;padding:5px 8px;font-weight:800;cursor:pointer;font-size:10.5px}
+    .run-detail-toggle:hover{background:#e1f5ef}.run-detail-row td{background:#f7fbfd;padding:10px 15px!important;white-space:normal!important}
+    .run-detail-table{border-collapse:collapse;width:100%;font-size:11px;white-space:nowrap}.run-detail-table th,.run-detail-table td{padding:7px 10px!important;text-align:left}
+    .run-detail-table th{color:#61798c;font-weight:800;background:#f0f5f8}.run-detail-table td{color:#355267}.run-detail-caption{font-size:10px;color:#718798;margin:0 0 8px}
+    .current-highlight{padding:13px 15px;background:#f5f8ff;border:1px solid #dce5f1;border-radius:11px;margin:-7px 0 16px}.current-highlight .score-main{font-size:29px;color:#365987;margin:3px 0}.current-highlight .score-small{font-size:10px}
+    .helper-note{margin:10px 0 0;padding:9px 10px;background:#f1f8fb;border:1px solid #deebef;border-radius:8px;font-size:10.5px;color:#476c7f;line-height:1.5}
+    .dual-selects{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}.dual-selects label{display:block;font-size:11px;font-weight:740;color:#5b7183}.dual-selects select{height:38px;margin-top:5px;font-size:12px}
+    .live-method{margin:10px 0 0;color:#47728a;font-weight:750;font-size:10.5px;min-height:14px}
+    .chart-legend{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:10px;color:#748a9b;font-weight:700;margin:2px 0 5px}.chart-legend b{width:16px;height:3px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:4px;background:#08a798}.chart-legend .line-current{background:#6e83b6}.chart-legend .line-opt{background:#e9a949}.chart-legend .line-temp{background:#9866bd}
+    .algorithm-input:disabled + span{opacity:.6}
+    @media(min-width:1121px){.score .card-body{padding:12px}.score-highlight{padding:10px;margin-bottom:11px}.score-highlight .score-main{font-size:30px}.current-highlight{padding:9px 10px;margin:-2px 0 10px}.current-highlight .score-main{font-size:26px}.score-split{gap:7px;margin-bottom:8px}.score-split>div{padding:9px 8px}.score-split .score-main{font-size:21px}.score-rule{margin:8px 0}.score .stat-row{padding:5px 0}.score .result-tip{margin-top:9px;padding:8px 9px}.score .ref-toggle{margin-top:7px}.score .live-method{margin-top:7px}}
+
+  
+    /* V10: fixed-position run controls, with compact fields and click-to-read explanations. */
+    .quick-run{position:sticky;top:7px;z-index:12;margin-bottom:16px;box-shadow:0 8px 24px rgba(9,48,64,.12);border-color:#c9e1e4}
+    .quick-run-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:13px 18px}
+    .quick-budget{display:grid;grid-template-columns:auto auto;align-items:center;gap:6px 15px;min-width:0}
+    .quick-title{display:flex;align-items:center;gap:7px;grid-column:1/2;grid-row:1/2}
+    .quick-budget-fields{grid-column:2/3;grid-row:1/3;display:flex;gap:10px}
+    .quick-input{display:grid;gap:3px;font-size:10px;font-weight:760;color:#657f8f;white-space:nowrap}
+    .quick-input input{height:39px;border:1px solid #d7e3eb;border-radius:8px;padding:0 8px;width:125px;font-weight:780;color:var(--ink);background:#fff}
+    .quick-summary{grid-column:1/2;grid-row:2/3;color:#427e88;font-size:10px;font-weight:700;max-width:210px}
+    .quick-actions{display:flex;gap:12px;align-items:center}
+    .quick-actions .button-main{min-width:164px;min-height:45px;white-space:nowrap}
+    .speed-control{display:grid;gap:5px;align-content:center}
+    .speed-control select{height:39px;min-width:135px;font-size:12px}
+    .head-with-info{display:flex;align-items:center;gap:8px;min-width:0}
+    .field-label>.info-tip{margin-left:auto}
+    .info-tip{position:relative;display:inline-flex;vertical-align:middle;flex-shrink:0;z-index:2}
+    .info-tip[open]{z-index:36}
+    .info-tip summary{list-style:none;cursor:pointer;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#edf7f9;border:1px solid #b8d5df;color:#407c8b;font-weight:850;font-size:12px;line-height:1}
+    .info-tip summary::-webkit-details-marker{display:none}
+    .info-tip summary:hover,.info-tip[open] summary{background:#d8f0ed;border-color:#53b5a6;color:#086f65}
+    .info-tip summary:focus-visible{outline:3px solid #9adbd8;outline-offset:2px}
+    .info-panel{position:absolute;top:26px;left:0;width:300px;max-width:min(330px,calc(100vw - 42px));padding:13px 15px;border:1px solid #c9dfe5;border-radius:11px;background:#fff;box-shadow:0 14px 35px rgba(11,37,58,.2);font-size:11.5px;font-weight:450;line-height:1.6;color:#4f687a;text-align:left;letter-spacing:normal;text-transform:none;white-space:normal}
+    .info-panel strong{color:#173a4e;font-weight:800}.info-panel>strong{display:block;margin-bottom:8px;font-size:12.5px}
+    .info-panel p{margin:0 0 8px}.info-panel p:last-child{margin-bottom:0}
+    .field-label .info-panel{left:auto;right:0}
+    .quick-title .info-panel{left:0;right:auto}
+    .choice small{display:none}
+    .choice{align-items:center;padding:9px 10px}.choice input{margin-top:1px}
+    .escape-count{margin:0 0 9px;font-size:10.5px;color:#7991a0}
+    .method-details{margin-top:9px;font-size:10.5px;color:#55778b}
+    .method-details summary{cursor:pointer;display:inline-flex;font-size:10.5px;font-weight:750;color:#367d87;outline-offset:3px}
+    .method-details summary:hover{text-decoration:underline}
+    .method-details-body{background:#f1f8fb;border:1px solid #deebef;border-radius:8px;padding:9px 10px;margin-top:7px;line-height:1.5}
+    #strategy-group.strategy-disabled .triple{opacity:.42;pointer-events:none;filter:grayscale(.3)}
+    #strategy-group.strategy-disabled .segment{cursor:not-allowed}
+    .sa-disabled-note{margin:7px 0 0;color:#537c8b;font-size:10.5px}
+    .seed-row{margin-top:0}.seed-panel{margin-bottom:20px}
+    .experiments tr.instance-best-row>td{background:#eaf8f4}
+    .experiments tr.instance-best-row>td:first-child{border-left:3px solid #0a9a78}
+    .best-tag{display:inline-block;color:#047d66;font-size:9px;font-weight:850;background:#d3f1e7;padding:2px 5px;border-radius:4px;margin-left:5px}
+    @media(max-width:1260px){.quick-budget{grid-template-columns:1fr;gap:8px}.quick-title,.quick-budget-fields,.quick-summary{grid-column:1/2;grid-row:auto}.quick-summary{max-width:unset}}
+    @media(max-width:940px){.quick-run{position:relative;top:auto}.quick-run-inner{flex-wrap:wrap;gap:12px}.quick-budget{flex:1 1 340px}.quick-actions{flex:1 1 300px;justify-content:flex-end}}
+    @media(max-width:600px){.quick-run-inner{padding:12px}.quick-budget-fields{gap:8px}.quick-input input{width:110px}.quick-actions{justify-content:space-between}.quick-actions .button-main{min-width:0;flex:1}.speed-control select{min-width:115px}.info-panel{max-width:min(300px,calc(100vw - 55px))}}
+
+  </style>
+</head>
+<body>
+<header>
+  <div class="hero-top"><div class="brand"><span class="brand-mark">⬡</span> THE HEURISTIC LAB <span style="color:#8aa3b4;font-weight:500;letter-spacing:0">/ TSP</span></div></div>
+  <h1>Build. Search. <em>Beat the tour.</em></h1>
+  <p class="hero-sub">Design your own TSP heuristic, watch it explore solutions, and see how close you get to the proven optimum.</p>
+</header>
+<main>
+  <section class="panel quick-run" aria-label="Search budget, run, and animation controls">
+    <div class="quick-run-inner">
+      <div class="quick-budget">
+        <div class="quick-title"><span class="eyebrow">SEARCH BUDGET</span><details class="info-tip"><summary aria-label="Information about Search budget" title="Information about Search budget">i</summary><div class="info-panel"><strong>Search budget</strong><div>Each independent run receives the full iteration budget and a different reproducible seed. Multi-starts divide the iteration budget within a run. One iteration can evaluate many candidate moves.</div></div></details></div>
+        <div class="quick-budget-fields">
+          <label class="quick-input">Iterations per run<input id="iterations" class="algorithm-input" type="number" min="1" max="10000" step="1" value="1000"></label>
+          <label class="quick-input">Independent runs<input id="runs-count" class="algorithm-input" type="number" min="1" max="100" step="1" value="1"></label>
+        </div>
+        <div class="quick-summary" id="total-budget-summary">1 run × 1,000 iterations = 1,000 search iterations in total.</div>
+      </div>
+      <div class="quick-actions">
+        <button id="run" class="button-main" type="button">▶ &nbsp; Run heuristic</button>
+        <label class="speed-control" for="speed"><span class="eyebrow">ANIMATION</span><select id="speed" class="full-select"><option value="instant" selected>Instant</option><option value="fast">Fast · 30 ms</option><option value="slow">Slow · 220 ms</option></select></label>
+      </div>
+    </div>
+  </section>
+  <div class="layout">
+    <section class="panel setup" aria-label="Heuristic configuration">
+      <div class="section-head"><h2>01 / Build your heuristic</h2><span class="subtle">YOUR RULES</span></div>
+      <div class="card-body">
+        <div class="group"><div class="field-label"><label for="instance">BENCHMARK INSTANCE</label><details class="info-tip"><summary aria-label="Information about Benchmark instance" title="Information about Benchmark instance">i</summary><div class="info-panel"><strong>Benchmark instance</strong><div><p id="instance-description"></p>Each instance has a reference optimal tour and optimal objective value (BKS), shown in the results panel.</div></div></details></div><select id="instance" class="full-select algorithm-input"></select></div>
+        <div class="group">
+          <div class="field-label"><span>1. INITIAL SOLUTION</span><details class="info-tip"><summary aria-label="Information about Initial tour construction" title="Information about Initial tour construction">i</summary><div class="info-panel"><strong>Initial tour construction</strong><div><p><strong>Nearest neighbor:</strong> Start at a randomly chosen city and repeatedly visit the closest unvisited city.</p><p><strong>GRASP:</strong> Sample randomly from a restricted list of the nearest available cities, whose maximum length is set by the percentage slider.</p><p><strong>Random:</strong> Randomly shuffle all cities into a tour.</p></div></div></details></div>
+          <div class="choice-list">
+            <label class="choice"><input class="algorithm-input" type="radio" name="construction" value="greedy" checked><span><strong>Nearest neighbor / Greedy</strong><small>Start at a randomly chosen city, then repeatedly visit the nearest unvisited city. Each new start can begin elsewhere.</small></span></label>
+            <label class="choice"><input class="algorithm-input" type="radio" name="construction" value="grasp"><span><strong>GRASP construction</strong><small>Choose randomly from an RCL containing the nearest unvisited cities. Set its maximum length as a percentage of all cities.</small></span></label>
+            <label class="choice"><input class="algorithm-input" type="radio" name="construction" value="random"><span><strong>Random tour</strong><small>Shuffle every city into a random order.</small></span></label>
+          </div>
+          <div class="alpha hidden" id="alpha-container"><div class="range-head"><span>GRASP restricted candidate list (% of cities)</span><output id="alpha-label">20%</output></div><input class="range-input algorithm-input" id="alpha" type="range" min="0" max="100" step="1" value="20"><div class="range-marks"><span>0% — nearest neighbor</span><span>100% — all unvisited cities</span></div><p class="schedule-summary" id="grasp-rcl-summary">RCL: up to 2 nearest unvisited cities.</p></div>
+        </div>
+        <div class="group"><div class="field-label"><span>2. MOVE TYPE</span><details class="info-tip"><summary aria-label="Information about Move types" title="Information about Move types">i</summary><div class="info-panel"><strong>Move types</strong><div><p><strong>Swap:</strong> Exchange two cities.</p><p><strong>2-opt:</strong> Reverse a contiguous tour segment. All eligible segment lengths are considered by the non-SA improvement strategies; SA samples randomly.</p><p><strong>Remove–insert:</strong> Move a single city to another position.</p></div></div></details></div>
+          <div class="choice-list" id="single-move-choices">
+            <label class="choice"><input class="algorithm-input" type="radio" name="move" value="swap"><span><strong>Swap</strong><small>Exchange the positions of two cities.</small></span></label>
+            <label class="choice"><input class="algorithm-input" type="radio" name="move" value="twoOpt" checked><span><strong>2-opt</strong><small>Reverse a segment of any length (2 to n−1 cities). All lengths are eligible; SA samples a random length.</small></span></label>
+            <label class="choice"><input class="algorithm-input" type="radio" name="move" value="insert"><span><strong>Remove–insert</strong><small>Move one city to another position.</small></span></label>
+          </div>
+          <div class="choice-list hidden" id="vns-move-choices" aria-label="Selected VNS move types">
+            <label class="choice"><input class="vns-move-check" type="checkbox" value="swap" disabled><span><strong>Swap</strong><small>Exchange the positions of two cities.</small></span></label>
+            <label class="choice"><input class="vns-move-check" type="checkbox" value="twoOpt" disabled><span><strong>2-opt</strong><small>Reverse a segment of any length (2 to n−1 cities).</small></span></label>
+            <label class="choice"><input class="vns-move-check" type="checkbox" value="insert" disabled><span><strong>Remove–insert</strong><small>Move one city to another position.</small></span></label>
+          </div>
+          <p class="hidden" id="vns-move-note" aria-hidden="true"></p>
+        </div>
+        <div class="group" id="strategy-group"><div class="field-label"><span>3. MOVE STRATEGY</span><details class="info-tip"><summary aria-label="Information about Move strategy" title="Information about Move strategy">i</summary><div class="info-panel"><strong>Move strategy</strong><div><p id="strategy-description">Examine every move; choose the largest improvement.</p><p id="strategy-override" class="hidden">With Simulated Annealing, moves are chosen randomly. This strategy does not apply. With Tabu Search alone, the selected move strategy still applies to the non-tabu improving moves.</p></div></div></details></div>
+          <div class="triple">
+            <label class="segment"><input class="algorithm-input" type="radio" name="strategy" value="best" checked>Best<br>improvement</label>
+            <label class="segment"><input class="algorithm-input" type="radio" name="strategy" value="first">First<br>improvement</label>
+            <label class="segment"><input class="algorithm-input" type="radio" name="strategy" value="random">Random<br>improvement</label>
+          </div>
+          <p class="sa-disabled-note hidden" id="strategy-sa-note">SA samples random moves; move strategy is unavailable.</p>
+        </div>
+        <div class="group seed-panel"><div class="field-label"><span>4. RANDOM SEED</span><details class="info-tip"><summary aria-label="Information about Random seed" title="Information about Random seed">i</summary><div class="info-panel"><strong>Random seed</strong><div>A seed makes random choices reproducible. Each independent run gets a different seed derived from the base seed, so comparing configurations can be repeated. Change this value to produce a different set of random searches.</div></div></details></div>
+          <label class="seed-row">Base random seed<input id="seed" class="algorithm-input" type="number" min="0" max="4294967295" step="1" value="2026"></label>
+        </div>
+        <div class="group"><div class="field-label"><span>5. ESCAPING LOCAL OPTIMA</span><details class="info-tip"><summary aria-label="Information about Escaping local optima" title="Information about Escaping local optima">i</summary><div class="info-panel"><strong>Escaping local optima</strong><div><p>Select up to two methods. With none selected, use ordinary local search.</p><p><strong>Multi-start:</strong> Fresh tours within the budget. <strong>Perturbation:</strong> Randomly reinsert part of a tour. <strong>Tabu Search:</strong> Disallow recently used cities. <strong>Simulated Annealing:</strong> Random moves and probabilistic worsening acceptance. <strong>VNS:</strong> Alternate between two move types without shaking.</p></div></div></details></div>
+          <p class="escape-count"><strong id="escape-counter">1 / 2 selected</strong> · Maximum 2</p>
+          <div class="choice-list">
+            <label class="choice"><input class="algorithm-input" name="escape" type="checkbox" value="multistart" checked><span><strong>Multi-start</strong><small>Construct a fresh tour at scheduled points in the shared budget.</small></span></label>
+            <label class="choice"><input class="algorithm-input" name="escape" type="checkbox" value="perturb"><span><strong>Perturbation</strong><small>Remove cities from the current tour and reinsert them randomly.</small></span></label>
+            <label class="choice"><input class="algorithm-input" name="escape" type="checkbox" value="tabu"><span><strong>Tabu Search (TS)</strong><small>Accept only improving moves that do not involve any currently tabu city.</small></span></label>
+            <label class="choice"><input class="algorithm-input" name="escape" type="checkbox" value="sa"><span><strong>Simulated Annealing (SA)</strong><small>Sample random moves, sometimes accepting a worse tour as the temperature cools.</small></span></label>
+            <label class="choice"><input class="algorithm-input" name="escape" type="checkbox" value="vns"><span><strong>Variable Neighborhood Search (VNS)</strong><small>Use two move types in order. When neither improves, cycle back to the first — no shaking.</small></span></label>
+          </div>
+          <div id="multi-container" class="escape-panel">
+            <label class="single-number" style="margin-top:0">Number of starts (including first)<input id="starts-count" class="algorithm-input" type="number" min="1" max="100" step="1" value="5"></label>
+            <p id="multi-summary" class="schedule-summary">1,000 iterations / 5 starts = 200 iterations per start.</p>
+          </div>
+          <div id="perturb-container" class="escape-panel hidden">
+            <div class="range-head"><span>Portion of cities removed &amp; randomly reinserted</span><output id="perturb-size-label">10%</output></div>
+            <input id="perturb-size" class="range-input algorithm-input" type="range" min="1" max="100" step="1" value="10"><div class="range-marks"><span>1% — small change</span><span>100% — entire tour</span></div>
+            <p class="schedule-summary" id="perturb-nodes-summary">10% of cities (rounded to the nearest whole city).</p>
+            <div class="eyebrow" style="margin-top:15px">WHEN SHOULD WE PERTURB?</div>
+            <div class="escape-options choice-list">
+              <label class="choice"><input class="algorithm-input" name="trigger" type="radio" value="scheduled" checked><span><strong>Scheduled perturbations</strong><small>Apply a fixed number of perturbations, approximately evenly spaced.</small></span></label>
+              <label class="choice"><input class="algorithm-input" name="trigger" type="radio" value="stagnation"><span><strong>After stagnation</strong><small>Perturb after X consecutive iterations without an improving move.</small></span></label>
+            </div>
+            <div id="scheduled-container"><label class="single-number">Number of perturbations<input id="perturb-count" class="algorithm-input" type="number" min="1" max="100" value="5" step="1"></label><p class="schedule-summary" id="scheduled-summary"></p></div>
+            <div id="stagnation-container" class="hidden"><label class="single-number">Iterations without improvement<input id="stall-limit" class="algorithm-input" type="number" min="1" max="10000" value="20" step="1"></label><p class="small-annotation">The stagnation counter resets after each accepted improving move or perturbation.</p></div>
+          </div>
+          <div id="tabu-container" class="escape-panel hidden">
+            <div class="range-head"><span>Tabu list size (% of cities)</span><output id="tabu-pct-label">15%</output></div>
+            <input id="tabu-pct" class="range-input algorithm-input" type="range" min="0" max="100" step="1" value="15">
+            <div class="range-marks"><span>0% — no restrictions</span><span>100% — all cities can be blocked</span></div>
+            <p class="schedule-summary" id="tabu-size-summary">Capacity: 2 cities.</p>
+            <details class="method-details"><summary aria-label="Show method explanation">ⓘ Method details</summary><div class="method-details-body">A FIFO list remembers <strong>city IDs, not moves</strong>: Swap and 2-opt add their two selected cities; remove–insert adds the removed city. A move touching <strong>any city on the list is strictly forbidden</strong>. No aspiration or fallback. With TS alone or VNS + TS, best / first / random improvement remains selectable. Only SA can accept worsening moves.</div></details>
+          </div>
+          <div id="sa-container" class="escape-panel hidden">
+            <div class="range-head"><span>Initial temperature T₀</span><output id="sa-temp-label">40</output></div>
+            <input id="sa-temp" class="range-input algorithm-input" type="range" min="0" max="4" step="0.1" value="1.6">
+            <div class="range-marks"><span>1</span><span>10</span><span>100</span><span>1,000</span><span>10,000</span></div>
+            <div class="range-head" style="margin-top:14px"><span>Temperature decay factor (0–1)</span><output id="sa-decay-label">0.995</output></div>
+            <input id="sa-decay" class="range-input algorithm-input" type="range" min="0" max="1" step="0.001" value="0.995">
+            <div class="range-marks"><span>0 — immediate cooling</span><span>1 — no cooling</span></div>
+            <details class="method-details"><summary aria-label="Show method explanation">ⓘ Method details</summary><div class="method-details-body"><strong>SA samples moves randomly.</strong> It always accepts improvements, and accepts a worsening move Δ &gt; 0 with probability exp(−Δ/T). Within each start, temperature follows T(k) = T₀ × decay<sup>k</sup> and resets to T₀ whenever multi-start constructs a new tour. With SA + VNS, <strong>each iteration independently chooses one of the two selected move types at random (50/50), then randomly samples one move of that type.</strong> No improvement strategy or VNS order is used; the SA acceptance rule decides whether that move is accepted.</div></details>
+          </div>
+          <div id="vns-container" class="escape-panel hidden">
+            <div class="eyebrow" id="vns-order-label">MOVE TYPES IN ORDER</div>
+            <div class="dual-selects">
+              <label>First move type<select id="vns-first" class="full-select algorithm-input"><option value="swap">Swap</option><option value="twoOpt" selected>2-opt</option><option value="insert">Remove–insert</option></select></label>
+              <label>Second move type<select id="vns-second" class="full-select algorithm-input"><option value="swap">Swap</option><option value="twoOpt">2-opt</option><option value="insert" selected>Remove–insert</option></select></label>
+            </div>
+            <details class="method-details"><summary aria-label="Show method explanation">ⓘ Method details</summary><div class="method-details-body">VNS uses these two move types instead of the single one above. <strong>Without SA:</strong> an improving move returns to move type 1; otherwise, switch to the next move type. No shaking or forced moves. With TS, tabu cities stay forbidden. <strong>With SA:</strong> order is ignored. Each iteration randomly chooses one of these two move types, samples a random move, and applies SA acceptance without using an improvement strategy.</div></details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="dashboard">
+    <div class="dashboard-top">
+    <section class="panel viz" aria-label="Tour visualization">
+      <div class="viz-toolbar"><div><span id="viz-title" class="instance-name">Starter 9</span><span id="viz-subtitle" class="instance-meta">9 cities · exact solution</span></div><div class="view-switch" role="group" aria-label="Tour view"><button id="view-current" class="active" type="button">Current</button><button id="view-best" type="button">Best found</button><button id="view-reference" type="button">Optimal</button></div></div>
+      <div class="canvas-area"><div class="map-background"><span class="map-corner">TSP ROUTE VIEW</span><canvas id="tour-canvas" role="img" aria-label="TSP cities and current route"></canvas></div><div class="map-legend"><span><span class="dot-key"></span>My heuristic</span><span><span class="dot-key ref"></span>Proven optimum</span><span><span class="dot-key pin"></span>City</span></div></div>
+      <div class="progress-strip"><div class="progress-meta"><span id="progress-heading">Ready to start</span><span id="progress-count">0 / 0 steps</span></div><div class="progress-track"><div class="progress-fill" id="progress-bar"></div></div><div class="status-line" id="status-message">Choose your configuration and press <strong>Run heuristic</strong>.</div></div>
+    </section>
+
+    <section class="panel score" aria-label="Results dashboard"><div class="section-head"><div class="head-with-info"><h2>02 / Your results</h2><details class="info-tip"><summary aria-label="Information about Result feedback" title="Information about Result feedback">i</summary><div class="info-panel"><strong>Result feedback</strong><div><p id="feedback"><strong>Challenge:</strong> Try to reach the optimum, then compare other configurations.</p></div></div></details></div><span id="grade" class="chip orange">NO RUN YET</span></div><div class="card-body">
+      <div class="score-highlight"><div class="score-label">Best tour found across all runs</div><div class="score-main" id="best-cost">—</div><div class="score-small" id="best-note">Start a search to find a tour.</div></div>
+      <div class="current-highlight"><div class="score-label">Current objective value</div><div class="score-main" id="current-objective">—</div><div class="score-small">Current tour, which may be worse than the best so far</div></div>
+      <div class="score-split"><div><div class="score-label">OPTIMUM / BKS</div><div id="optimal-cost" class="score-main">—</div><div class="score-small" id="opt-label">Proven optimum</div></div><div><div class="score-label">GAP TO BKS</div><div id="gap" class="score-main">—</div><div class="score-small">Based on <strong>best found</strong>, not current tour</div></div></div><p class="small-annotation" id="gap-formula" style="margin:-5px 0 13px;line-height:1.45">Gap = (best found − BKS) / BKS × 100%</p>
+      <div class="score-rule"></div><div class="stats"><div class="stat-row"><span>Current tour cost</span><strong id="current-cost">—</strong></div><div class="stat-row"><span>Initial tour (current run)</span><strong id="initial-cost">—</strong></div><div class="stat-row"><span>Moves accepted</span><strong id="accepted">0</strong></div><div class="stat-row"><span>Worsening moves accepted</span><strong id="worsening">0</strong></div><div class="stat-row"><span>Neighbors evaluated</span><strong id="evaluations">0</strong></div><div class="stat-row"><span>Starts (current run)</span><strong id="starts">0</strong></div><div class="stat-row"><span>Perturbations applied</span><strong id="perturbations">0</strong></div><div class="stat-row"><span>Tabu cities in list</span><strong id="tabu-active">0</strong></div><div class="stat-row"><span>Elapsed time</span><strong id="elapsed">0 ms</strong></div></div>
+      <p id="live-method" class="live-method">Choose a method to begin.</p>
+      <label class="ref-toggle"><input id="show-reference" type="checkbox"> Overlay optimal tour</label>
+      
+    </div></section>
+    </div>
+    <div class="lower"><section class="panel"><div class="section-head"><div class="head-with-info"><h2>03 / Search progress</h2><details class="info-tip"><summary aria-label="Information about Search progress" title="Information about Search progress">i</summary><div class="info-panel"><strong>Search progress</strong><div><p id="chart-description">Current and best objective values during the search. Vertical markers show new starts and perturbations.</p></div></div></details></div><span class="subtle" id="chart-run-label">OBJECTIVE VALUE ↓</span></div><div class="chart-pad"><canvas id="chart-canvas" role="img" aria-label="Search progress chart"></canvas><div class="chart-legend"><span><b></b>Best in displayed run</span><span><b class="line-current"></b>Current objective</span><span><b class="line-opt"></b>Optimum</span><span id="temperature-legend" class="hidden"><b class="line-temp"></b>SA temperature (right axis)</span></div></div></section>
+    <section class="panel"><div class="section-head"><div class="head-with-info"><h2>04 / Experiment notebook</h2><details class="info-tip"><summary aria-label="Information about Experiment notebook" title="Information about Experiment notebook">i</summary><div class="info-panel"><strong>Experiment notebook</strong><div><strong>Across independent runs:</strong> Best / average / worst are computed from the <strong>best tour found in each independent run</strong>, not from its intermediate solutions, starts, or perturbations. With 1 run, all three equal that run's best. Every run gets the full iteration budget and its own reproducible seed. Expand “Runs / details” to view each result. <strong>Best gap to BKS</strong> = (best tour across all runs − BKS) / BKS × 100%. <strong>Average gap to BKS</strong> = (mean of the run-best tour lengths − BKS) / BKS × 100% (equivalently, the mean run gap). With 1 run, both gaps are equal. Old notebook entries from earlier versions retain their original phase-based summaries and are marked legacy.<p><strong>Highlighted rows:</strong> The configuration(s) with the lowest <em>Best found</em> value for that instance among the saved experiments, including ties. Search budgets can differ across configurations.</p></div></div></details></div><div class="mini-actions"><button id="export">↓ Summary CSV</button><button id="export-runs">↓ Runs CSV</button><button id="clear-history">Clear</button></div></div><div class="table-wrap"><table class="experiments"><thead><tr><th>#</th><th>Instance</th><th>Configuration</th><th>Runs / details</th><th>Best found</th><th>Average</th><th>Worst</th><th title="Best known / proven optimal value">BKS</th><th title="(Best across runs − BKS) / BKS × 100%">Best gap to BKS</th><th title="(Average of run-best tour lengths − BKS) / BKS × 100%; this equals the mean of individual run gaps">Average gap to BKS</th><th>Total evaluations</th></tr></thead><tbody id="experiment-rows"><tr><td class="empty" colspan="11">Your completed experiments will appear here. Test different combinations!</td></tr></tbody></table></div></section></div>
+    </div>
+  </div>
+  <details class="info-section"><summary>Instructor / student notes · Algorithm definitions and fair comparison</summary>
+    <div class="info-grid">
+      <div><h3>Constructing a tour</h3><p>Nearest neighbor and GRASP start at a randomly selected city. For GRASP, select an RCL size as a percentage p of the <em>total number of cities</em> n. The maximum RCL length is max(1, ceil(p × n / 100)), but it is capped by the number of unvisited cities. At each construction step, take that many nearest unvisited cities and choose one uniformly at random. 0% is equivalent to nearest neighbor (random distance ties); 100% chooses from all remaining cities. Random construction shuffles all cities.</p></div>
+      <div><h3>Move types &amp; iteration budget</h3><p>Swap exchanges two cities; 2-opt reverses a contiguous segment; remove–insert relocates one city. One iteration is one move-selection attempt, not necessarily one neighbor evaluation. Outside SA, best examines every admissible move and chooses the largest improvement; first tries the moves in random order and accepts the first improvement; random examines every admissible move and chooses uniformly among improving moves. For 2-opt, this considers all segment lengths (2 to n−1 cities). SA instead samples a random move, with a random segment length for 2-opt. The iteration budget is shared by the selected escape methods <em>within each run</em>; independent runs each receive the full budget.</p></div>
+      <div><h3>Combining two escape methods</h3><p>Choose up to two checkboxes. Multi-start reconstructs tours at equal-budget intervals; perturbation alters the current tour at scheduled times or after stagnation. If both are selected, scheduled perturbations avoid restart boundaries. New starts or perturbations clear the tabu list and reset the VNS move-type index. SA temperature resets to T₀ each time multi-start constructs a new initial tour; the iteration budget is shared within each run; every independent run receives the full budget.</p></div>
+      <div><h3>Strict city-based Tabu Search</h3><p>The tabu slider limits the FIFO list to ceil(percentage × number of cities), with 0% allowing an empty list. Swap and 2-opt add both selected city IDs; remove–insert adds the relocated city. A move involving a tabu city is never eligible (no exceptions). Alone or with VNS, TS only permits strictly improving moves, using the student's best / first / random improvement rule.</p></div>
+      <div><h3>SA, VNS, and hybrid behavior</h3><p>Standalone SA (including SA + TS) randomly samples a permissible move; a positive change Δ may be accepted with probability exp(−Δ/T), where k counts iterations since the latest start and T = T₀ × decay<sup>k</sup>. With SA + VNS, each iteration independently chooses one of the two selected move types with equal probability, then samples one random move and applies SA acceptance. The move-type order and improvement strategy are not used in this hybrid. VNS without SA cycles between move types in the specified order, returning to the first after an improvement, without shaking.</p></div>
+      <div><h3>Benchmarks &amp; interpretation</h3><p>Instance costs use TSPLIB EUC_2D rounded Euclidean distances; published TSPLIB and exact classroom optima are supplied. The notebook's best / average / worst summarize the <em>best tour found within each independent run</em>. All methods retain the global best even if SA or diversification increases the current objective. Different move strategies may evaluate vastly different numbers of neighbors per iteration.</p></div>
+    </div>
+  </details>
+  <div class="credits">TSPLIB95 data and published proven optimal tours: <a href="https://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/" target="_blank" rel="noopener noreferrer">Gerhard Reinelt / TSPLIB</a> · Classroom instances: exact dynamic programming · Runs locally; no account or internet needed</div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+const INSTANCES=[{"id":"classroom9","name":"Starter 9","family":"CLASSROOM","points":[[8,14],[24,42],[12,83],[49,71],[63,19],[78,58],[89,90],[37,13],[82,30]],"opt":298,"optTour":[0,7,4,8,5,6,3,2,1],"detail":"Integer-rounded Euclidean; optimum verified by Held\u2013Karp dynamic programming."},{"id":"classroom12","name":"Tricky 12","family":"CLASSROOM","points":[[10,15],[18,80],[25,45],[33,18],[39,91],[49,59],[54,34],[67,77],[72,10],[83,43],[90,93],[95,23]],"opt":359,"optTour":[0,3,6,8,11,9,10,7,5,4,1,2],"detail":"Integer-rounded Euclidean; optimum verified by Held\u2013Karp dynamic programming."},{"id":"classroom14","name":"Challenge 14","family":"CLASSROOM","points":[[9,61],[17,17],[23,88],[30,44],[39,72],[45,11],[49,92],[57,54],[62,27],[71,85],[77,43],[83,12],[90,62],[95,91]],"opt":375,"optTour":[0,3,1,5,11,8,7,10,12,13,9,6,4,2],"detail":"Integer-rounded Euclidean; optimum verified by Held\u2013Karp dynamic programming."},{"id":"eil51","name":"eil51","family":"TSPLIB95","points":[[37.0,52.0],[49.0,49.0],[52.0,64.0],[20.0,26.0],[40.0,30.0],[21.0,47.0],[17.0,63.0],[31.0,62.0],[52.0,33.0],[51.0,21.0],[42.0,41.0],[31.0,32.0],[5.0,25.0],[12.0,42.0],[36.0,16.0],[52.0,41.0],[27.0,23.0],[17.0,33.0],[13.0,13.0],[57.0,58.0],[62.0,42.0],[42.0,57.0],[16.0,57.0],[8.0,52.0],[7.0,38.0],[27.0,68.0],[30.0,48.0],[43.0,67.0],[58.0,48.0],[58.0,27.0],[37.0,69.0],[38.0,46.0],[46.0,10.0],[61.0,33.0],[62.0,63.0],[63.0,69.0],[32.0,22.0],[45.0,35.0],[59.0,15.0],[5.0,6.0],[10.0,17.0],[21.0,10.0],[5.0,64.0],[30.0,15.0],[39.0,10.0],[32.0,39.0],[25.0,32.0],[25.0,55.0],[48.0,28.0],[56.0,37.0],[30.0,40.0]],"opt":426,"optTour":[0,21,7,25,30,27,2,35,34,19,1,28,20,15,49,33,29,8,48,9,38,32,44,14,43,41,39,18,40,12,24,13,23,42,6,22,47,5,26,50,45,11,46,17,3,16,36,4,37,10,31],"detail":"TSPLIB95 \u00b7 EUC_2D \u00b7 published proven optimum."},{"id":"berlin52","name":"berlin52","family":"TSPLIB95","points":[[565.0,575.0],[25.0,185.0],[345.0,750.0],[945.0,685.0],[845.0,655.0],[880.0,660.0],[25.0,230.0],[525.0,1000.0],[580.0,1175.0],[650.0,1130.0],[1605.0,620.0],[1220.0,580.0],[1465.0,200.0],[1530.0,5.0],[845.0,680.0],[725.0,370.0],[145.0,665.0],[415.0,635.0],[510.0,875.0],[560.0,365.0],[300.0,465.0],[520.0,585.0],[480.0,415.0],[835.0,625.0],[975.0,580.0],[1215.0,245.0],[1320.0,315.0],[1250.0,400.0],[660.0,180.0],[410.0,250.0],[420.0,555.0],[575.0,665.0],[1150.0,1160.0],[700.0,580.0],[685.0,595.0],[685.0,610.0],[770.0,610.0],[795.0,645.0],[720.0,635.0],[760.0,650.0],[475.0,960.0],[95.0,260.0],[875.0,920.0],[700.0,500.0],[555.0,815.0],[830.0,485.0],[1170.0,65.0],[830.0,610.0],[605.0,625.0],[595.0,360.0],[1340.0,725.0],[1740.0,245.0]],"opt":7542,"optTour":[0,48,31,44,18,40,7,8,9,42,32,50,10,51,13,12,46,25,26,27,11,24,3,5,14,4,23,47,37,36,39,38,35,34,33,43,45,15,28,49,19,22,29,1,6,41,20,16,2,17,30,21],"detail":"TSPLIB95 \u00b7 EUC_2D \u00b7 published proven optimum."},{"id":"st70","name":"st70","family":"TSPLIB95","points":[[64.0,96.0],[80.0,39.0],[69.0,23.0],[72.0,42.0],[48.0,67.0],[58.0,43.0],[81.0,34.0],[79.0,17.0],[30.0,23.0],[42.0,67.0],[7.0,76.0],[29.0,51.0],[78.0,92.0],[64.0,8.0],[95.0,57.0],[57.0,91.0],[40.0,35.0],[68.0,40.0],[92.0,34.0],[62.0,1.0],[28.0,43.0],[76.0,73.0],[67.0,88.0],[93.0,54.0],[6.0,8.0],[87.0,18.0],[30.0,9.0],[77.0,13.0],[78.0,94.0],[55.0,3.0],[82.0,88.0],[73.0,28.0],[20.0,55.0],[27.0,43.0],[95.0,86.0],[67.0,99.0],[48.0,83.0],[75.0,81.0],[8.0,19.0],[20.0,18.0],[54.0,38.0],[63.0,36.0],[44.0,33.0],[52.0,18.0],[12.0,13.0],[25.0,5.0],[58.0,85.0],[5.0,67.0],[90.0,9.0],[41.0,76.0],[25.0,76.0],[37.0,64.0],[56.0,63.0],[10.0,55.0],[98.0,7.0],[16.0,74.0],[89.0,60.0],[48.0,82.0],[81.0,76.0],[29.0,60.0],[17.0,22.0],[5.0,45.0],[79.0,70.0],[9.0,100.0],[17.0,82.0],[74.0,67.0],[10.0,68.0],[48.0,19.0],[83.0,86.0],[84.0,94.0]],"opt":675,"optTour":[0,35,28,12,69,34,30,68,37,58,21,65,62,56,14,23,18,6,1,3,17,41,31,2,7,25,54,48,27,13,19,29,43,67,26,45,24,44,38,60,39,8,16,42,40,5,52,4,9,51,59,11,33,20,32,61,53,47,66,10,63,64,55,50,49,57,36,46,15,22],"detail":"TSPLIB95 \u00b7 EUC_2D \u00b7 published proven optimum."},{"id":"kroA100","name":"kroA100","family":"TSPLIB95","points":[[1380.0,939.0],[2848.0,96.0],[3510.0,1671.0],[457.0,334.0],[3888.0,666.0],[984.0,965.0],[2721.0,1482.0],[1286.0,525.0],[2716.0,1432.0],[738.0,1325.0],[1251.0,1832.0],[2728.0,1698.0],[3815.0,169.0],[3683.0,1533.0],[1247.0,1945.0],[123.0,862.0],[1234.0,1946.0],[252.0,1240.0],[611.0,673.0],[2576.0,1676.0],[928.0,1700.0],[53.0,857.0],[1807.0,1711.0],[274.0,1420.0],[2574.0,946.0],[178.0,24.0],[2678.0,1825.0],[1795.0,962.0],[3384.0,1498.0],[3520.0,1079.0],[1256.0,61.0],[1424.0,1728.0],[3913.0,192.0],[3085.0,1528.0],[2573.0,1969.0],[463.0,1670.0],[3875.0,598.0],[298.0,1513.0],[3479.0,821.0],[2542.0,236.0],[3955.0,1743.0],[1323.0,280.0],[3447.0,1830.0],[2936.0,337.0],[1621.0,1830.0],[3373.0,1646.0],[1393.0,1368.0],[3874.0,1318.0],[938.0,955.0],[3022.0,474.0],[2482.0,1183.0],[3854.0,923.0],[376.0,825.0],[2519.0,135.0],[2945.0,1622.0],[953.0,268.0],[2628.0,1479.0],[2097.0,981.0],[890.0,1846.0],[2139.0,1806.0],[2421.0,1007.0],[2290.0,1810.0],[1115.0,1052.0],[2588.0,302.0],[327.0,265.0],[241.0,341.0],[1917.0,687.0],[2991.0,792.0],[2573.0,599.0],[19.0,674.0],[3911.0,1673.0],[872.0,1559.0],[2863.0,558.0],[929.0,1766.0],[839.0,620.0],[3893.0,102.0],[2178.0,1619.0],[3822.0,899.0],[378.0,1048.0],[1178.0,100.0],[2599.0,901.0],[3416.0,143.0],[2961.0,1605.0],[611.0,1384.0],[3113.0,885.0],[2597.0,1830.0],[2586.0,1286.0],[161.0,906.0],[1429.0,134.0],[742.0,1025.0],[1625.0,1651.0],[1187.0,706.0],[1787.0,1009.0],[22.0,987.0],[3640.0,43.0],[3756.0,882.0],[776.0,392.0],[1724.0,1642.0],[198.0,1810.0],[3950.0,1558.0]],"opt":21282,"optTour":[0,46,92,27,66,57,60,50,86,24,80,68,63,39,53,1,43,49,72,67,84,81,94,12,75,32,36,4,51,77,95,38,29,47,99,40,70,13,2,42,45,28,33,82,54,6,8,56,19,11,26,85,34,61,59,76,22,97,90,44,31,10,14,16,58,73,20,71,9,83,35,98,37,23,17,78,52,87,15,93,21,69,65,25,64,3,96,55,79,30,88,41,7,91,74,18,89,48,5,62],"detail":"TSPLIB95 \u00b7 EUC_2D \u00b7 published proven optimum."},{"id":"ch150","name":"ch150","family":"TSPLIB95","points":[[37.4393516691,541.2090699418],[612.1759508571,494.3166877396],[38.1312338227,353.1484581781],[53.4418081065,131.484901365],[143.0606355347,631.7200953923],[689.9451267256,468.5354998742],[112.7478815786,529.417757826],[141.4875865042,504.818485571],[661.0513901702,445.9375182115],[98.7899036592,384.5926031158],[697.3881696597,180.3962284275],[536.4894189738,287.2279085051],[192.4067320507,20.439405931],[282.7865258765,229.8001556189],[240.8251726391,281.51414372],[246.9281323057,322.461332116],[649.7313216456,62.3331575282],[352.96585626,666.7873101942],[633.392367658,534.9398453712],[488.311799404,437.4869439948],[141.4039286509,228.4325551488],[17.3632612602,240.2407068508],[397.5586451389,231.3591208928],[565.7853781464,282.3858748974],[475.8975387047,468.5392706317],[322.4224566559,550.3165478233],[397.5586634023,74.7588387765],[672.8618339396,432.882640963],[571.2189680147,530.261699153],[104.6531165914,482.8224768783],[356.7098388794,67.6477131712],[400.4070255527,253.6794479997],[282.3036243109,426.8380500923],[58.7766988363,507.1712386832],[189.75062244,460.3815233617],[659.9124120147,226.6284156239],[639.0307636033,467.2302300719],[415.0258357432,233.3045376118],[547.2662016307,161.6589278401],[616.6547902644,339.3409309407],[494.8592427417,148.1217856389],[629.9980812186,433.4548164038],[471.101431241,314.2219307579],[138.2440514421,137.1679919735],[91.5847556724,110.0203007516],[390.6972811808,423.9774318385],[565.1617825137,429.1598152874],[54.5248980387,438.5515408431],[334.350832971,153.796923804],[531.0291024509,612.3874827889],[475.7345905802,385.7844618897],[228.8325218994,410.4461939615],[578.3805347586,321.3303494537],[358.9170574485,404.4670352898],[486.4648554867,593.0429937016],[343.169370767,509.3123571315],[530.3626972076,137.6881275684],[498.8065475299,576.2102674608],[224.31827155,312.4677490415],[595.836073259,81.8130051356],[661.5588724308,217.0456944477],[43.6892045516,305.4722789165],[79.465345253,445.9641737689],[210.4163247004,130.7151137038],[432.2642292251,629.4092661116],[623.2487161301,69.189285084],[436.5194739944,282.935645607],[59.4163265482,40.1280234442],[630.9230074073,230.342988813],[579.3265539688,601.0359410602],[117.862450748,112.9796833705],[297.7912565664,166.3131886803],[22.7642703744,455.5340094037],[259.7095810385,10.6199925885],[342.3579873647,599.3880182608],[10.0260950143,488.9310558282],[315.2926064118,273.2275475579],[220.7044919297,270.0819745721],[192.1186059948,314.1839922798],[271.5042718992,225.2921989972],[530.7320005441,504.0670155337],[42.5331441666,656.3645162886],[396.1274792588,539.4648066027],[118.6631474021,508.7129103929],[395.6913876595,699.5376048429],[559.0157105844,560.8866941411],[22.6471035906,526.2470392816],[135.6377085256,325.8409901555],[141.4507014379,485.2477927763],[396.7741299332,460.7557115283],[87.7494562765,19.6170129082],[350.4245639661,420.6531186835],[216.7010817133,466.4816410995],[130.9237737024,351.1491733079],[72.6329856671,645.7852219213],[144.6002949996,457.4224283926],[212.3725077442,594.9216893413],[49.9186786455,541.4350825349],[656.6943525585,558.1109593509],[176.5941623792,648.5239953299],[500.3825200226,198.7428378322],[634.317867842,612.8291643194],[59.7537372726,551.6321886765],[15.2145765106,143.0441928532],[283.0054378872,376.4439530184],[146.5389000907,39.4231794338],[101.8685605377,635.098685018],[588.1968537448,580.5946976921],[457.2628632528,350.0164047376],[537.4663680494,472.5842276692],[269.3669098585,367.4763636538],[239.9045383695,102.629765339],[88.4677500396,384.0507209275],[658.9133693395,583.9575181023],[97.7359146347,157.4558657632],[506.6191384007,233.0022156094],[500.2566898239,64.9136393489],[594.4048565021,275.874186899],[66.230814661,24.1317387604],[598.4162993909,414.5557574275],[172.308833083,344.3963466366],[299.48128518,251.829512132],[303.8379894831,21.052606379],[197.896926984,512.388896098],[56.0199567669,243.0663818382],[255.5566183121,448.8651882442],[608.4256112402,222.5421309272],[70.2722703273,77.9227026433],[398.2298999899,119.557657386],[635.4970237093,133.3225902609],[378.3484559418,272.2907677147],[484.8029663388,677.0730379436],[278.8710882619,299.9308770828],[381.6537300653,360.3337602785],[557.6070707573,595.3185092281],[249.0589749342,76.6595112599],[562.9048787838,670.0382113114],[398.550436558,392.6493259144],[590.893972056,370.7414913742],[558.2008003726,0.4198814512],[461.4114714423,530.5254969413],[354.7242881504,685.40453619],[193.6611295657,669.7432521028],[352.3140807211,140.3273323662],[308.434570974,115.2054269847],[299.588137008,530.588961902],[334.2748764383,152.1494569394],[690.9658585947,134.5793307203],[48.0798124069,270.968067372],[91.6467647724,166.3541158474]],"opt":6528,"optTour":[0,97,102,81,94,106,4,99,142,96,145,25,74,17,141,84,64,131,136,49,54,57,140,82,55,89,45,91,53,137,133,130,31,22,37,66,42,108,50,19,24,109,80,28,85,134,69,107,101,113,98,18,1,36,5,27,8,41,119,46,138,39,52,117,23,11,115,100,40,56,38,126,68,35,60,10,147,129,16,65,59,139,116,128,26,30,122,73,12,105,90,118,67,127,44,70,43,63,111,135,144,143,48,146,71,79,13,121,76,132,14,77,20,149,114,3,103,21,124,148,61,2,112,9,93,87,120,78,58,15,110,104,32,125,51,92,123,34,95,88,7,6,83,29,62,47,72,75,33,86],"detail":"TSPLIB95 \u00b7 EUC_2D \u00b7 published proven optimum."}];
+(function(){
+  const $=id=>document.getElementById(id);
+  const all=(sel)=>Array.from(document.querySelectorAll(sel));
+  const fmt=x=>(Number.isFinite(x)?Math.round(x).toLocaleString('en-US'):'—');
+  const pct=x=>Number.isFinite(x)?(x<.000001?'0.00%':x.toFixed(2)+'%'):'—';
+  const gapToBKS=(best,bks)=>Number.isFinite(best)&&Number.isFinite(bks)&&bks>0?100*(best-bks)/bks:NaN;
+  // In this game the RCL is a fixed fraction of the full instance size,
+  // capped by the currently unvisited cities (and never smaller than 1).
+  const graspRclSizeForPct=(percent,n)=>Math.max(1,Math.ceil(percent*n/100));
+  const clamp=(x,l,h)=>Math.min(h,Math.max(l,x));
+  const dist=(p,q)=>Math.floor(Math.hypot(p[0]-q[0],p[1]-q[1])+.5);
+  const nameMove={swap:'Swap',twoOpt:'2-opt',insert:'Insert'};
+  const nameConstruct={greedy:'NN',grasp:'GRASP',random:'Random'};
+  const nameStrategy={best:'Best',first:'First',random:'Random'};
+  let experimentRecords=[];
+  try {const s=JSON.parse(localStorage.getItem('tsp-heuristic-lab-records')||'[]');if(Array.isArray(s))experimentRecords=s.slice(0,60)}catch(_){}
+
+  let instance=INSTANCES[0], matrix=[];
+  let session=null, running=false, jobToken=0, view='current', showReference=false, toastTimeout=null;
+  const rngOf=seed=>{let a=seed>>>0;return ()=>{a=(a+0x6d2b79f5)|0;let t=Math.imul(a^(a>>>15),1|a);t^=t+Math.imul(t^(t>>>7),61|t);return ((t^(t>>>14))>>>0)/4294967296}};
+  const seedForRun=(base,index)=>(Number(base)+Math.imul(index,0x9e3779b9))>>>0;
+  const ri=(rng,max)=>Math.floor(rng()*max);
+  const shuffle=(a,rng)=>{for(let i=a.length-1;i>0;i--){const j=ri(rng,i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+  const routeCost=t=>{let s=0;for(let i=0;i<t.length;i++)s+=matrix[t[i]][t[(i+1)%t.length]];return s};
+  const shortTour=t=>t.length>16?t.slice(0,10).map(x=>x+1).join(' → ')+' → …':t.map(x=>x+1).join(' → ');
+  function setInstance(id){instance=INSTANCES.find(i=>i.id===id)||INSTANCES[0];matrix=instance.points.map(p=>instance.points.map(q=>dist(p,q)));$('viz-title').textContent=instance.name;$('viz-subtitle').textContent=instance.points.length+' cities · '+(instance.family==='TSPLIB95'?'TSPLIB95':'exact classroom');$('instance-description').textContent=instance.family==='TSPLIB95'?'Published, proven optimal tour · EUC_2D distances':'Small practice instance · exact optimum (Held–Karp)';$('optimal-cost').textContent=fmt(instance.opt);$('opt-label').textContent='Proven optimum';drawTour();drawChart()}
+  function selectedEscapes(){return all('input[name="escape"]:checked').map(x=>x.value);}
+  const has=(cfg,mode)=>cfg.escapes.includes(mode);
+  function tabuCapacity(pct,n){return pct===0?0:Math.ceil(pct*n/100);}
+  function config(){
+    const r=n=>document.querySelector('input[name="'+n+'"]:checked')?.value;
+    const iterations=Number($('iterations').value),runs=Number($('runs-count').value),seed=Number($('seed').value),escapes=selectedEscapes();
+    const starts=Number($('starts-count').value),perturbCount=Number($('perturb-count').value),stallLimit=Number($('stall-limit').value),perturbPct=Number($('perturb-size').value),perturbSize=perturbNodesForPct(perturbPct,instance.points.length),trigger=r('trigger');
+    const tabuPct=Number($('tabu-pct').value),tabuMax=tabuCapacity(tabuPct,instance.points.length);
+    const saT0=Math.pow(10,Number($('sa-temp').value)),saDecay=Number($('sa-decay').value),vnsMoves=[$('vns-first').value,$('vns-second').value];
+    if(!Number.isSafeInteger(iterations)||iterations<1||iterations>10000)throw Error('Iterations per run must be from 1 to 10,000.');
+    if(!Number.isSafeInteger(runs)||runs<1||runs>100)throw Error('Number of independent runs must be from 1 to 100.');
+    if(!Number.isSafeInteger(seed)||seed<0||seed>4294967295)throw Error('Seed must be an integer between 0 and 4,294,967,295.');
+    if(escapes.length>2)throw Error('Choose at most two ways to escape local optima.');
+    if(escapes.includes('multistart')&&(!Number.isSafeInteger(starts)||starts<1||starts>Math.min(100,iterations)))throw Error('Number of starts must be between 1 and min(100, total iterations).');
+    if(escapes.includes('perturb')){
+      if(!Number.isInteger(perturbPct)||perturbPct<1||perturbPct>100)throw Error('Perturbation must be between 1% and 100% of cities.');
+      if(trigger==='scheduled'&&(!Number.isSafeInteger(perturbCount)||perturbCount<1||perturbCount>Math.min(100,iterations-(escapes.includes('multistart')?starts:1))))throw Error('Too many scheduled perturbations for the budget: allow at least one iteration per start and perturbation.');
+      if(trigger==='stagnation'&&(!Number.isSafeInteger(stallLimit)||stallLimit<1||stallLimit>10000))throw Error('Stagnation limit must be between 1 and 10,000.');
+    }
+    if(escapes.includes('tabu')&&(!Number.isInteger(tabuPct)||tabuPct<0||tabuPct>100))throw Error('Tabu size must be between 0% and 100%.');
+    if(escapes.includes('sa')&&(!Number.isFinite(saT0)||saT0<1||saT0>10000||!Number.isFinite(saDecay)||saDecay<0||saDecay>1))throw Error('SA temperature or decay factor is out of range.');
+    if(escapes.includes('vns')&&vnsMoves[0]===vnsMoves[1])throw Error('Choose two different move types for VNS.');
+    const graspRclPct=Number($('alpha').value);
+    if(!Number.isInteger(graspRclPct)||graspRclPct<0||graspRclPct>100)throw Error('GRASP RCL percentage must be between 0 and 100.');
+    return {construction:r('construction'),move:r('move'),strategy:r('strategy'),alpha:graspRclPct/100,graspRclPct,graspRclMaxCities:graspRclSizeForPct(graspRclPct,instance.points.length),iterations,runs,starts:escapes.includes('multistart')?starts:1,escapes,escape:escapes.join('+')||'none',trigger,perturbCount,stallLimit,perturbPct,perturbSize,tabuPct,tabuMax,saT0,saDecay,vnsMoves,seed,instanceId:instance.id};
+  }
+  // Fixed-budget boundaries. For B=1000,N=5: new starts at 200,400,600,800.
+  const startBoundaries=(B,N)=>Array.from({length:N-1},(_,i)=>Math.floor((i+1)*B/N));
+  // N actual perturbations, centered in N equal intervals. With B=1000 and N=5
+  // these occur at 100,300,500,700,900: exactly 200 rounds apart, with
+  // enough search time before the first and after the last.
+  const perturbBoundaries=(B,N)=>Array.from({length:N},(_,i)=>clamp(Math.floor((i+.5)*B/N),i+1,B-N+i));
+  // Scheduled perturbations are spread over free step boundaries (not a restart).
+  function safePerturbBoundaries(B,N,startSchedule){
+    const banned=new Set(startSchedule),free=[];
+    for(let i=1;i<B;i++)if(!banned.has(i))free.push(i);
+    if(N>free.length)throw Error('Too many scheduled perturbations for the shared budget.');
+    return Array.from({length:N},(_,i)=>free[Math.floor((i+.5)*free.length/N)]);
+  }
+  function perturbNodesForPct(percent,n){return Math.max(1,Math.min(n,Math.round(percent*n/100)));}
+  function perturbTour(t,k,rng){
+    const selected=shuffle(Array.from({length:t.length},(_,i)=>i),rng).slice(0,k);
+    const marked=new Set(selected),removed=selected.map(i=>t[i]),newTour=t.filter((_,i)=>!marked.has(i));
+    shuffle(removed,rng);
+    for(const city of removed)newTour.splice(ri(rng,newTour.length+1),0,city);
+    return newTour;
+  }
+  function constructTour(cfg,rng,forcedStart=null){
+    const n=instance.points.length;
+    if(cfg.construction==='random')return shuffle(Array.from({length:n},(_,i)=>i),rng);
+    const start=forcedStart===null?ri(rng,n):forcedStart,tour=[start],remaining=new Set(Array.from({length:n},(_,i)=>i));remaining.delete(start);
+    while(remaining.size){let lo=Infinity;const last=tour[tour.length-1],options=[];
+      remaining.forEach(c=>{const d=matrix[last][c];options.push([c,d]);lo=Math.min(lo,d)});
+      let next;
+      if(cfg.construction==='greedy'){const cand=options.filter(o=>o[1]===lo);next=cand[ri(rng,cand.length)][0]}
+      else {
+        // Shuffle before sorting to break equal-distance ties randomly.
+        // Use p% of ALL n cities as the maximum RCL length, not p% of
+        // currently remaining cities; cap by remaining.size at each step.
+        const percent=Number.isFinite(cfg.graspRclPct)?cfg.graspRclPct:100*Number(cfg.alpha||0);
+        const rclLength=Math.min(remaining.size,graspRclSizeForPct(percent,n));
+        const ranked=shuffle(options,rng).sort((a,b)=>a[1]-b[1]);
+        next=ranked[ri(rng,rclLength)][0];
+      }
+      tour.push(next);remaining.delete(next);
+    }
+    return tour;
+  }
+  function delta(t,move,i,j){
+    const n=t.length;
+    if(move==='twoOpt'){
+      if(i===0&&j===n-1)return 0;
+      return matrix[t[(i-1+n)%n]][t[j]]+matrix[t[i]][t[(j+1)%n]]-matrix[t[(i-1+n)%n]][t[i]]-matrix[t[j]][t[(j+1)%n]];
+    }
+    if(move==='swap'){
+      if(i===j)return 0;
+      let old=0,next=0;
+      const edges=new Set([(i-1+n)%n,i,(j-1+n)%n,j]);
+      const city=k=>k===i?t[j]:k===j?t[i]:t[k];
+      for(const e of edges){old+=matrix[t[e]][t[(e+1)%n]];next+=matrix[city(e)][city((e+1)%n)]}
+      return next-old;
+    }
+    if(move==='insert'){
+      if(j===i)return 0;
+      const p=t[(i-1+n)%n],x=t[i],q=t[(i+1)%n];
+      const m=n-1,idx=k=>t[k<i?k:k+1];
+      const l=idx((j-1+m)%m),r=idx(j%m);
+      return matrix[p][q]-matrix[p][x]-matrix[x][q]+matrix[l][x]+matrix[x][r]-matrix[l][r];
+    }
+  }
+  function applyMove(t,m,i,j){const copy=t.slice();if(m==='swap') [copy[i],copy[j]]=[copy[j],copy[i]];
+    else if(m==='twoOpt'){for(let a=i,b=j;a<b;a++,b--)[copy[a],copy[b]]=[copy[b],copy[a]]}
+    else {const [city]=copy.splice(i,1);copy.splice(j,0,city)}return copy;
+  }
+  function allMoves(move,n){const arr=[];
+    if(move==='insert'){for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(i!==j)arr.push([i,j]);}
+    else if(move==='twoOpt'){for(let i=0;i<n-1;i++)for(let j=i+1;j<n;j++)if(!(i===0&&j===n-1))arr.push([i,j]);}
+    else {for(let i=0;i<n-1;i++)for(let j=i+1;j<n;j++)arr.push([i,j]);}
+    return arr;
+  }
+  function randomMove(move,n,rng){
+    if(move==='twoOpt'){const len=2+ri(rng,n-2),i=ri(rng,n-len+1);return [i,i+len-1]}
+    if(move==='swap'){const i=ri(rng,n),j=ri(rng,n-1);return [Math.min(i,j>=i?j+1:j),Math.max(i,j>=i?j+1:j)]}
+    const i=ri(rng,n),j=ri(rng,n-1);return [i,j>=i?j+1:j];
+  }
+  // A tabu entry is a city ID. The two endpoints of 2-opt, the two
+  // swapped cities, or only the relocated city for remove-insert are remembered.
+  function touchedCities(t,move,i,j){return move==='insert'?[t[i]]:[t[i],t[j]];}
+  function isAdmissible(t,move,i,j,tabuSet){
+    return !tabuSet||touchedCities(t,move,i,j).every(city=>!tabuSet.has(city));
+  }
+  const cachedMoves={};
+  function movesFor(move,n){return cachedMoves[move+':'+n]||(cachedMoves[move+':'+n]=allMoves(move,n));}
+  function randomAdmissibleMove(t,move,rng,tabuSet){
+    if(!tabuSet||!tabuSet.size)return randomMove(move,t.length,rng);
+    // Condition the random selection on being non-tabu; never select a
+    // forbidden candidate, not even as a last-resort/aspiration rule.
+    for(let k=0;k<80;k++){
+      const [i,j]=randomMove(move,t.length,rng);
+      if(isAdmissible(t,move,i,j,tabuSet))return [i,j];
+    }
+    const valid=movesFor(move,t.length).filter(([i,j])=>isAdmissible(t,move,i,j,tabuSet));
+    return valid.length?valid[ri(rng,valid.length)]:null;
+  }
+  function chooseImprovement(t,cfg,rng,tabuSet=null){
+    const n=t.length,move=cfg.move;
+    // First improvement uses a fresh random permutation of the neighborhood;
+    // best and random improvement both evaluate every admissible candidate.
+    const moves=cfg.strategy==='first'?shuffle(movesFor(move,n).slice(),rng):movesFor(move,n);
+    let chosen=null,best=0,evals=0,improvingCount=0;
+    for(const [i,j] of moves){
+      if(!isAdmissible(t,move,i,j,tabuSet))continue;
+      const d=delta(t,move,i,j);evals++;
+      if(d>=0)continue;
+      if(cfg.strategy==='first')return {move:[i,j],d,evals};
+      if(cfg.strategy==='best'){
+        if(d<best){chosen=[i,j];best=d;}
+      }else if(cfg.strategy==='random'){
+        // Reservoir sampling: each improving candidate is equally likely,
+        // without storing every improving move in a second list.
+        improvingCount++;
+        if(ri(rng,improvingCount)===0){chosen=[i,j];best=d;}
+      }
+    }
+    return {move:chosen,d:best,evals};
+  }
+  function addTabuCities(s,cityIds){
+    if(!has(s.cfg,'tabu')||s.cfg.tabuMax===0)return;
+    for(const city of cityIds){
+      // Moves touching a listed city are inadmissible, so duplicates are not
+      // normally possible. Guard against them for a robust FIFO queue.
+      if(s.tabuSet.has(city))continue;
+      s.tabuList.push(city);s.tabuSet.add(city);
+      while(s.tabuList.length>s.cfg.tabuMax)s.tabuSet.delete(s.tabuList.shift());
+    }
+  }
+  function saTemperature(cfg,iterationWithinStart){return cfg.saT0*Math.pow(cfg.saDecay,iterationWithinStart);}
+  function saDecision(s,move){
+    const pair=randomAdmissibleMove(s.tour,move,s.rng,has(s.cfg,'tabu')?s.tabuSet:null);
+    if(!pair)return {move:null,d:0,accepted:false,evals:0,p:0};
+    const d=delta(s.tour,move,...pair),T=s.temperature;
+    const p=d<=0?1:T>0?Math.exp(-d/T):0;
+    return {move:pair,d,accepted:s.rng()<p,evals:1,p};
+  }
+  const now=()=>performance.now();
+  function begin(){
+    const cfg=config();
+    session={cfg,rng:null,tour:null,initial:null,bestTour:null,best:Infinity,current:Infinity,
+      starts:0,iteration:0,totalSteps:0,totalExperimentSteps:0,evals:0,accepted:0,worsening:0,
+      history:[],startMarkers:[],perturbMarkers:[],createdAt:now(),elapsed:0,done:false,saved:false,
+      notice:'',phaseBests:[],stagnation:0,localOpt:false,perturbationsDone:0,totalPerturbationsDone:0,
+      tabuList:[],tabuSet:new Set(),temperature:cfg.saT0,vnsIndex:0,startPool:[],startSchedule:[],perturbSchedule:[],
+      runIndex:0,runsCompleted:0,runBest:Infinity,runBestTour:null,runRecords:[],runSeed:cfg.seed,
+      runStartEvals:0,runStartAccepted:0,runStartWorsening:0,runStartPerturbations:0};
+    beginIndependentRun();setInputsLocked(true);update();return session;
+  }
+  function beginIndependentRun(){const s=session,cfg=s.cfg;
+    s.runIndex++;
+    s.runSeed=seedForRun(cfg.seed,s.runIndex-1);
+    s.rng=rngOf(s.runSeed);
+    s.runStartEvals=s.evals;s.runStartAccepted=s.accepted;s.runStartWorsening=s.worsening;
+    s.runStartPerturbations=s.totalPerturbationsDone;
+    s.runBest=Infinity;s.runBestTour=null;
+    s.tour=null;s.initial=null;s.current=Infinity;s.iteration=0;s.totalSteps=0;s.starts=0;
+    s.history=[];s.startMarkers=[];s.perturbMarkers=[];s.phaseBests=[];
+    s.stagnation=0;s.localOpt=false;s.perturbationsDone=0;s.tabuList=[];s.tabuSet.clear();
+    s.temperature=cfg.saT0;s.vnsIndex=0;s.startPool=[];
+    s.startSchedule=startBoundaries(cfg.iterations,cfg.starts);
+    s.perturbSchedule=has(cfg,'perturb')&&cfg.trigger==='scheduled'?safePerturbBoundaries(cfg.iterations,cfg.perturbCount,s.startSchedule):[];
+    nextStart();
+    s.notice=`Independent run ${s.runIndex}/${cfg.runs} started (seed ${s.runSeed}).`;
+  }
+  function rememberCandidate(tour,cost){const s=session;
+    if(cost<s.runBest){s.runBest=cost;s.runBestTour=tour.slice()}
+    if(cost<s.best){s.best=cost;s.bestTour=tour.slice()}
+    s.phaseBests[s.phaseBests.length-1]=Math.min(s.phaseBests.at(-1),cost);
+  }
+  function nextStart(){const s=session;
+    let startCity=null;
+    if(has(s.cfg,'multistart')&&s.cfg.construction!=='random'){
+      if(!s.startPool.length)s.startPool=shuffle(Array.from({length:instance.points.length},(_,i)=>i),s.rng);
+      startCity=s.startPool.pop();
+    }
+    const tour=constructTour(s.cfg,s.rng,startCity),cost=routeCost(tour);
+    s.tour=tour;s.current=cost;s.iteration=0;s.temperature=s.cfg.saT0;s.starts++;
+    s.stagnation=0;s.localOpt=false;s.vnsIndex=0;s.tabuList=[];s.tabuSet.clear();
+    s.startMarkers.push(s.totalSteps);s.phaseBests.push(cost);
+    if(s.initial===null)s.initial=cost;
+    rememberCandidate(tour,cost);
+    s.history.push({step:s.totalSteps,best:s.runBest,current:s.current,temperature:has(s.cfg,'sa')?s.temperature:null});
+    s.notice=s.starts===1?'Initial tour constructed.':`Fresh initial tour constructed (start ${s.starts}/${s.cfg.starts}).`;
+  }
+  function applyPerturbation(){const s=session;
+    s.tour=perturbTour(s.tour,s.cfg.perturbSize,s.rng);s.current=routeCost(s.tour);
+    s.localOpt=false;s.stagnation=0;s.vnsIndex=0;s.tabuList=[];s.tabuSet.clear();
+    s.perturbationsDone++;s.totalPerturbationsDone++;
+    s.perturbMarkers.push(s.totalSteps);s.phaseBests.push(s.current);rememberCandidate(s.tour,s.current);
+    s.history.push({step:s.totalSteps,best:s.runBest,current:s.current,temperature:has(s.cfg,'sa')?s.temperature:null});
+    s.notice=`Perturbation ${s.perturbationsDone}: removed and reinserted ${s.cfg.perturbSize} cities.`;
+  }
+  function completeIndependentRun(){const s=session;
+    s.runRecords.push({run:s.runIndex,seed:s.runSeed,best:s.runBest,initial:s.initial,
+      evaluations:s.evals-s.runStartEvals,accepted:s.accepted-s.runStartAccepted,
+      worsening:s.worsening-s.runStartWorsening,steps:s.totalSteps,
+      starts:s.starts,perturbations:s.totalPerturbationsDone-s.runStartPerturbations,
+      phases:s.phaseBests.length});
+    s.runsCompleted++;
+    if(s.runsCompleted===s.cfg.runs){finish()}
+    else{beginIndependentRun()}
+  }
+  function finish(){const s=session;if(!s||s.done)return;
+    s.done=true;s.elapsed=now()-s.createdAt;
+    s.notice=`Completed ${s.cfg.runs} independent run${s.cfg.runs===1?'':'s'}; compare the best results across runs.`;
+    setInputsLocked(false);saveResult(s);
+  }
+  function acceptMove(s,move,i,j,d){
+    s.tour=applyMove(s.tour,move,i,j);s.current+=d;
+    const actual=routeCost(s.tour);
+    if(s.current!==actual)throw Error('Internal tour-cost mismatch: '+s.current+' vs '+actual);
+    s.accepted++;if(d>0)s.worsening++;if(d<0)s.stagnation=0;rememberCandidate(s.tour,s.current);
+  }
+  function advance(){const s=session;if(!s||s.done)return;
+    const cfg=s.cfg,usingVNS=has(cfg,'vns'),usingSA=has(cfg,'sa'),usingTS=has(cfg,'tabu');
+    const idx=s.vnsIndex,nMove=usingVNS?cfg.vnsMoves[idx]:cfg.move;
+    let info='',improved=false,accepted=false,attempted=false;
+    s.temperature=usingSA?saTemperature(cfg,s.iteration):0;
+    if(usingSA){
+      // SA alone, SA + TS, and SA + VNS: always sample exactly one random
+      // candidate. With VNS, independently select one of its TWO move types
+      // with equal probability on every iteration; no best/first/random
+      // improvement strategy and no ordered VNS traversal in this hybrid.
+      const selectedIndex=usingVNS?ri(s.rng,2):0;
+      const sampledMove=usingVNS?cfg.vnsMoves[selectedIndex]:nMove;
+      if(usingVNS)s.vnsIndex=selectedIndex; // display only, never drives SA
+      const chosen=saDecision(s,sampledMove);s.evals+=chosen.evals;
+      if(chosen.move){attempted=true;
+        if(chosen.accepted){
+          const touched=touchedCities(s.tour,sampledMove,...chosen.move);
+          acceptMove(s,sampledMove,...chosen.move,chosen.d);addTabuCities(s,touched);
+          accepted=true;improved=chosen.d<0;
+        }
+        info=`${usingVNS?'SA + VNS random type':'SA random'} ${nameMove[sampledMove]}: random move Δ=${chosen.d}, T=${s.temperature.toFixed(3)}; ${accepted?'accepted':'rejected'}${chosen.d>0?' (p='+chosen.p.toFixed(3)+')':''}${usingTS?' · strict tabu filter':''}.`;
+      }else info='No admissible move: all candidates touch tabu cities.';
+    }else{
+      // Ordinary local search, TS, ordered VNS, and ordered VNS + TS use
+      // the selected improvement strategy; no method here accepts worse moves.
+      const selection=(!s.localOpt||usingVNS)?chooseImprovement(s.tour,{...cfg,move:nMove},s.rng,usingTS?s.tabuSet:null):{move:null,d:0,evals:0};
+      s.evals+=selection.evals;
+      if(selection.move){
+        const touched=touchedCities(s.tour,nMove,...selection.move);
+        acceptMove(s,nMove,...selection.move,selection.d);addTabuCities(s,touched);
+        accepted=true;attempted=true;improved=true;
+        if(usingVNS)s.vnsIndex=0;
+        info=`${usingVNS?'VNS '+nameMove[nMove]:usingTS?'Tabu '+nameMove[nMove]:nameMove[nMove]}: improving move Δ=${selection.d} accepted${usingTS?' (tabu-respecting)':''}.`;
+      }else if(usingVNS){
+        // Never shake. Cycle through the two ordered move types when no
+        // improving move is found in the current type.
+        s.vnsIndex=(idx+1)%2;
+        info=`VNS ${nameMove[nMove]}: no improving move; switch to ${nameMove[cfg.vnsMoves[s.vnsIndex]]}.`;
+      }else{
+        if(cfg.strategy!=='random')s.localOpt=true;
+        info=usingTS?'No strictly improving non-tabu move. No exception or worsening move is allowed.':s.localOpt?'Local optimum: waiting for a restart or perturbation.':'Random improvement: no improving move in the admissible neighborhood.';
+      }
+    }
+    // For stagnation-triggered perturbation, count iterations without any
+    // improving move, regardless of neutral/worsening SA acceptances.
+    if(!improved)s.stagnation++;
+    s.iteration++;s.totalSteps++;s.totalExperimentSteps++;
+    s.notice=info;
+    s.history.push({step:s.totalSteps,best:s.runBest,current:s.current,temperature:usingSA?s.temperature:null});
+    if(s.totalSteps>=cfg.iterations){completeIndependentRun();return;}
+    if(has(cfg,'multistart')&&s.startSchedule.includes(s.totalSteps))nextStart();
+    else if(has(cfg,'perturb')&&(
+      (cfg.trigger==='scheduled'&&s.perturbSchedule.includes(s.totalSteps))||
+      (cfg.trigger==='stagnation'&&s.stagnation>=cfg.stallLimit)))applyPerturbation();
+    s.elapsed=now()-s.createdAt;
+  }
+  function saveResult(s){if(s.saved)return;s.saved=true;
+    const results=s.runRecords.map(x=>x.best);
+    const avg=results.reduce((a,b)=>a+b,0)/results.length;
+    const record={date:new Date().toISOString(),instance:s.cfg.instanceId,construction:s.cfg.construction,
+      alpha:null,graspRclPct:s.cfg.construction==='grasp'?s.cfg.graspRclPct:null,graspRclMaxCities:s.cfg.construction==='grasp'?s.cfg.graspRclMaxCities:null,move:s.cfg.move,strategy:s.cfg.strategy,iterations:s.cfg.iterations,
+      runs:s.cfg.runs,runDetails:s.runRecords,starts:s.cfg.starts,
+      escape:s.cfg.escape,escapes:s.cfg.escapes,trigger:s.cfg.trigger,
+      perturbCount:has(s.cfg,'perturb')?(s.cfg.trigger==='scheduled'?s.cfg.perturbCount:s.totalPerturbationsDone):0,
+      perturbationsTotal:has(s.cfg,'perturb')?s.totalPerturbationsDone:0,
+      perturbPct:has(s.cfg,'perturb')?s.cfg.perturbPct:null,
+      perturbSize:has(s.cfg,'perturb')?s.cfg.perturbSize:0,
+      stallLimit:has(s.cfg,'perturb')&&s.cfg.trigger==='stagnation'?s.cfg.stallLimit:null,
+      tabuPct:has(s.cfg,'tabu')?s.cfg.tabuPct:null,tabuMax:has(s.cfg,'tabu')?s.cfg.tabuMax:null,
+      saT0:has(s.cfg,'sa')?s.cfg.saT0:null,saDecay:has(s.cfg,'sa')?s.cfg.saDecay:null,
+      vnsFirst:has(s.cfg,'vns')?s.cfg.vnsMoves[0]:null,
+      vnsSecond:has(s.cfg,'vns')?s.cfg.vnsMoves[1]:null,
+      seed:s.cfg.seed,initial:s.runRecords[0]?.initial,best:Math.min(...results),
+      average:avg,worst:Math.max(...results),phases:s.runRecords.reduce((a,r)=>a+r.phases,0),
+      optimal:instance.opt,evals:s.evals,accepted:s.accepted,worsening:s.worsening,
+      steps:s.totalExperimentSteps,elapsedMs:Math.round(s.elapsed)};
+    experimentRecords.unshift(record);experimentRecords=experimentRecords.slice(0,60);
+    try{localStorage.setItem('tsp-heuristic-lab-records',JSON.stringify(experimentRecords))}catch(_){}
+    renderTable();
+  }
+  function setInputsLocked(locked){all('.algorithm-input').forEach(x=>x.disabled=locked);if(!locked&&selectedEscapes().includes('sa'))all('input[name="strategy"]').forEach(x=>x.disabled=true)}
+  function reset(){jobToken++;running=false;session=null;setInputsLocked(false);$('run').textContent='▶   Run heuristic';$('run').disabled=false;update()}
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  async function play(){if(running){running=false;jobToken++;$('run').textContent='▶   Continue';return}
+    try{if(!session||session.done)begin()}catch(e){toast(e.message);return}
+    const tourRect=$('tour-canvas').getBoundingClientRect();
+    if(tourRect.top>window.innerHeight*.72||tourRect.bottom<70){document.querySelector('.dashboard-top').scrollIntoView({behavior:'smooth',block:'start'});}
+    running=true;const token=++jobToken;$('run').textContent='Ⅱ   Pause';
+    let work=0;
+    while(running&&token===jobToken&&session&&!session.done){
+      try{advance()}catch(e){running=false;toast(e.message);reset();return}
+      const speed=$('speed').value;
+      if(speed==='instant') {if(++work%55===0){update();await wait(0)}}
+      else {update();await wait(speed==='fast'?30:220)}
+    }
+    if(token!==jobToken)return;
+    running=false;$('run').textContent=session?.done?'▶   Run again':'▶   Continue';update();
+  }
+  function step(){if(running)return;
+    try {if(!session||session.done)begin();advance();update();}catch(e){toast(e.message);reset();}
+  }
+  function update(){
+    const s=session,progress=s?s.totalExperimentSteps/(s.cfg.iterations*s.cfg.runs):0;
+    $('best-cost').textContent=s?fmt(s.best):'—';$('current-objective').textContent=s?fmt(s.current):'—';$('best-note').textContent=s?(s.done?'Final best across all independent runs':`Best across ${s.runsCompleted} completed + current run`):'Start a search to find a tour.';
+    $('optimal-cost').textContent=fmt(instance.opt);$('gap').textContent=s?pct(gapToBKS(s.best,instance.opt)):'—';$('gap-formula').textContent=s?`(${fmt(s.best)} − ${fmt(instance.opt)}) ÷ ${fmt(instance.opt)} × 100 = ${pct(gapToBKS(s.best,instance.opt))}`:'Gap = (best found − BKS) / BKS × 100%';$('current-cost').textContent=s?fmt(s.current):'—';$('initial-cost').textContent=s?fmt(s.initial):'—';$('accepted').textContent=s?fmt(s.accepted):'0';$('worsening').textContent=s?fmt(s.worsening):'0';$('evaluations').textContent=s?fmt(s.evals):'0';$('starts').textContent=s?fmt(s.starts):'0';$('perturbations').textContent=s?fmt(s.totalPerturbationsDone):'0';$('tabu-active').textContent=s?fmt(s.tabuList.length):'0';$('live-method').textContent=!s?'Choose a method to begin.':[
+      has(s.cfg,'vns')?(has(s.cfg,'sa')?`SA + VNS: random ${nameMove[s.cfg.vnsMoves[0]]} / ${nameMove[s.cfg.vnsMoves[1]]}`:`VNS ${nameMove[s.cfg.vnsMoves[s.vnsIndex]]} (${s.vnsIndex+1}/2)`):null,
+      has(s.cfg,'sa')?`SA T=${s.temperature.toFixed(3)} · decay ${s.cfg.saDecay.toFixed(3)}`:null,
+      has(s.cfg,'tabu')?`Tabu ${s.tabuList.length}/${s.cfg.tabuMax} cities (${s.cfg.tabuPct}%)`:null,
+      `Independent run ${s.runIndex}/${s.cfg.runs} · seed ${s.runSeed}`,
+      has(s.cfg,'multistart')?`Start ${s.starts}/${s.cfg.starts}`:null,
+      has(s.cfg,'perturb')?`${s.perturbationsDone} perturbations`:null
+    ].filter(Boolean).join(' · ')||'Ordinary local search' ;$('elapsed').textContent=s?(s.elapsed<1000?Math.round(s.elapsed)+' ms':(s.elapsed/1000).toFixed(2)+' s'):'0 ms';
+    const gap=s?gapToBKS(s.best,instance.opt):Infinity;
+    $('grade').className='chip'+(gap>=5?' orange':'');$('grade').textContent=!s?'NO RUN YET':gap<=0?'🏆 OPTIMAL':gap<=1?'★ EXCELLENT':gap<=5?'NICE SEARCH':'KEEP TRYING';
+    $('chart-run-label').textContent=s?`RUN ${s.runIndex}/${s.cfg.runs}`:'OBJECTIVE VALUE ↓';
+    $('progress-heading').textContent=!s?'Ready to start':s.done?`Experiment finished · ${s.cfg.runs} runs`:`Run ${s.runIndex}/${s.cfg.runs} · iteration ${s.totalSteps}/${s.cfg.iterations}`;
+    $('progress-count').textContent=s?`${s.totalExperimentSteps.toLocaleString()} / ${(s.cfg.iterations*s.cfg.runs).toLocaleString()} total iterations · ${s.evals.toLocaleString()} neighbors`:'0 steps';
+    $('progress-bar').style.width=(s?.done?100:100*clamp(progress,0,1))+'%';$('status-message').textContent=s?s.notice:'Choose your configuration and press Run heuristic.';
+    $('feedback').innerHTML=!s?'<strong>Challenge:</strong> Can you reach the optimum? Then try a different move or improvement rule using the same seed.':gap<=0?'<strong>Optimum reached!</strong> A 0% gap. Can you reach it with fewer neighbor evaluations?':gap<=5?'<strong>Close!</strong> Experiment with a different starting solution, move or restarts to close the remaining gap.':'<strong>Try this:</strong> Compare your tour with the optimal overlay. Could 2-opt or extra restarts help?';
+    drawTour();drawChart();
+  }
+  function canvasSetup(el,w,h){const dpr=clamp(window.devicePixelRatio||1,1,2);const rw=Math.max(1,Math.floor(w)),rh=Math.max(1,Math.floor(h));if(el.width!==Math.round(rw*dpr)||el.height!==Math.round(rh*dpr)){el.width=Math.round(rw*dpr);el.height=Math.round(rh*dpr)}const ctx=el.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,rw,rh);return ctx}
+  function drawTour(){const canvas=$('tour-canvas');if(!canvas||!instance)return;const rect=canvas.getBoundingClientRect(),w=rect.width||650,h=rect.height||440,ctx=canvasSetup(canvas,w,h);
+    const pts=instance.points;let minX=Math.min(...pts.map(p=>p[0])),maxX=Math.max(...pts.map(p=>p[0])),minY=Math.min(...pts.map(p=>p[1])),maxY=Math.max(...pts.map(p=>p[1]));
+    const margin=45,sw=Math.max(1,maxX-minX),sh=Math.max(1,maxY-minY),scale=Math.min((w-2*margin)/sw,(h-2*margin)/sh),x0=(w-sw*scale)/2,y0=(h-sh*scale)/2;
+    const pos=p=>[x0+(p[0]-minX)*scale,h-(y0+(p[1]-minY)*scale)];
+    const drawRoute=(tour,color,width,dash,alpha)=>{if(!tour)return;ctx.beginPath();for(let k=0;k<=tour.length;k++){const [x,y]=pos(pts[tour[k%tour.length]]);k?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.globalAlpha=alpha;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1};
+    const s=session,tour=view==='best'?(s?.bestTour):view==='reference'?instance.optTour:(s?.tour);
+    if(view==='reference'){drawRoute(instance.optTour,'#e6a13d',2.8,[],.95)}
+    else {if(showReference)drawRoute(instance.optTour,'#e8a74b',2.0,[6,5],.65);drawRoute(tour,'#08a798',3.0,[],.89)}
+    for(let i=0;i<pts.length;i++){const [x,y]=pos(pts[i]);ctx.beginPath();ctx.arc(x,y,pts.length>55?3.35:pts.length>20?4.0:5.1,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle='#23435b';ctx.stroke();if(pts.length<=16){ctx.font='700 11px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillStyle='#173a52';ctx.fillText(String(i+1),x,y-8)}}
+    if(tour?.length){const [x,y]=pos(pts[tour[0]]);ctx.beginPath();ctx.arc(x,y,pts.length>20?5.3:7,0,Math.PI*2);ctx.fillStyle=view==='reference'?'#e9a345':'#08a798';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.stroke()}
+    if(!s&&view!=='reference'){ctx.font='700 14px system-ui,sans-serif';ctx.textAlign='center';ctx.fillStyle='#8094a4';ctx.fillText('Run a heuristic to draw your tour',w/2,h/2-14)}
+  }
+  function drawChart(){
+    const c=$('chart-canvas');if(!c)return;
+    const r=c.getBoundingClientRect(),w=r.width||530,h=r.height||208,ctx=canvasSetup(c,w,h),s=session;
+    const showTemp=!!(s&&has(s.cfg,'sa'));
+    const pad={l:47,r:showTemp?63:18,t:12,b:28},iw=w-pad.l-pad.r,ih=h-pad.t-pad.b;
+    ctx.font='10px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
+    const v=s?.history?.length?s.history.flatMap(x=>[x.best,x.current]):[instance.opt*1.6,instance.opt];
+    let ymin=Math.min(instance.opt,...v),ymax=Math.max(...v);
+    const margin=Math.max(2,(ymax-ymin)*.18);ymin=Math.max(0,ymin-margin);ymax+=margin;
+    if(ymax<=ymin)ymax=ymin+1;
+    const yOf=a=>pad.t+ih*(1-(a-ymin)/(ymax-ymin));
+    const xOf=a=>pad.l+iw*a/Math.max(1,s?.cfg.iterations||1);
+    for(let i=0;i<=3;i++){
+      const val=ymin+(ymax-ymin)*i/3,y=yOf(val);
+      ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+iw,y);
+      ctx.strokeStyle='#e6eef2';ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle='#91a0ad';ctx.textAlign='right';ctx.fillText(Math.round(val).toLocaleString('en-US'),pad.l-9,y);
+    }
+    ctx.beginPath();const oy=yOf(instance.opt);ctx.moveTo(pad.l,oy);ctx.lineTo(pad.l+iw,oy);
+    ctx.setLineDash([5,4]);ctx.strokeStyle='#e9a949';ctx.lineWidth=1.5;ctx.stroke();ctx.setLineDash([]);
+    if(s&&s.history.length){
+      for(const v of s.startMarkers.slice(1)){
+        const x=xOf(v);ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ih);
+        ctx.setLineDash([3,4]);ctx.strokeStyle='#bed6d8';ctx.stroke();ctx.setLineDash([]);
+      }
+      for(const v of s.perturbMarkers){
+        const x=xOf(v);ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ih);
+        ctx.setLineDash([2,4]);ctx.strokeStyle='#e5a444';ctx.stroke();ctx.setLineDash([]);
+      }
+      ctx.beginPath();s.history.forEach((p,i)=>{
+        const x=xOf(p.step),y=yOf(p.current);i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+      });ctx.strokeStyle='#6e83b6';ctx.lineWidth=1.65;ctx.setLineDash([4,3]);ctx.stroke();ctx.setLineDash([]);
+      ctx.beginPath();s.history.forEach((p,i)=>{
+        const x=xOf(p.step),y=yOf(p.best);i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+      });ctx.lineWidth=2.6;ctx.strokeStyle='#08a798';ctx.lineJoin='round';ctx.stroke();
+      const last=s.history.at(-1);ctx.beginPath();ctx.arc(xOf(last.step),yOf(last.best),4,0,2*Math.PI);ctx.fillStyle='#08a798';ctx.fill();
+      if(showTemp){
+        const T0=s.cfg.saT0,tY=temp=>pad.t+ih*(1-Math.min(T0,Math.max(0,temp))/Math.max(1e-12,T0));
+        ctx.save();ctx.strokeStyle='#9866bd';ctx.fillStyle='#9161b3';ctx.lineWidth=1.8;
+        ctx.beginPath();s.history.forEach((p,i)=>{
+          const x=xOf(p.step),y=tY(p.temperature??T0);i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+        });ctx.stroke();ctx.restore();
+        ctx.fillStyle='#9161b3';ctx.textAlign='left';ctx.textBaseline='middle';
+        const formatT=x=>x>=1000?Math.round(x).toLocaleString('en-US'):x>=10?x.toFixed(1):x.toFixed(2);
+        ctx.fillText('T '+formatT(T0),pad.l+iw+6,pad.t+5);
+        ctx.fillText('0',pad.l+iw+6,pad.t+ih-2);
+      }
+      ctx.fillStyle='#8294a2';ctx.textAlign='center';ctx.textBaseline='alphabetic';
+      ctx.fillText('0',pad.l,h-10);ctx.fillText(String(s.cfg.iterations),pad.l+iw,h-10);
+    }else{
+      ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillStyle='#a0afba';
+      ctx.fillText('No search history yet',pad.l+iw/2,pad.t+ih/2);
+    }
+  }
+  function escapeLabel(r){
+    const es=Array.isArray(r.escapes)?r.escapes:(r.escape&&r.escape!=='none'?String(r.escape).split('+'):[]);
+    if(!es.length)return 'No escape';
+    return es.map(x=>x==='multistart'?`${r.starts} starts`:
+      x==='perturb'?`Perturb ${r.perturbCount}${r.runs>1?(r.trigger==='scheduled'?'/run':' total'):''} × ${r.perturbPct!=null?r.perturbPct+'% ('+r.perturbSize+' cities)':r.perturbSize+' cities'} (${r.trigger==='stagnation'?'stall '+r.stallLimit:'scheduled'})`:
+      x==='tabu'?`Tabu ${r.tabuPct!=null?r.tabuPct+'% ('+r.tabuMax+' cities)':'legacy L='+r.tabuTenure}`:
+      x==='sa'?`SA T₀=${Number(r.saT0).toFixed(1)}, decay=${r.saDecay??'auto'}`:
+      x==='vns'?`VNS ${nameMove[r.vnsFirst]||'?'}→${nameMove[r.vnsSecond]||'?'}`:x).join(' + ');
+  }
+  const escapeHTML=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function renderTable(){const root=$('experiment-rows');
+    const bestByInstance=new Map();for(const record of experimentRecords){const best=Number(record.best);if(Number.isFinite(best))bestByInstance.set(record.instance,Math.min(bestByInstance.get(record.instance)??Infinity,best));}
+    if(!experimentRecords.length){root.innerHTML='<tr><td class="empty" colspan="11">Your completed experiments will appear here. Test different combinations!</td></tr>';return;}
+    root.innerHTML=experimentRecords.map((r,i)=>{
+      const es=Array.isArray(r.escapes)?r.escapes:(r.escape&&r.escape!=='none'?String(r.escape).split('+'):[]);
+      const graspText=r.construction==='grasp'?(r.graspRclPct!=null?` RCL ${r.graspRclPct}% (up to ${r.graspRclMaxCities} cities)`:` α=${Number(r.alpha).toFixed(2)} (legacy)`):'';
+      const cfgText=(nameConstruct[r.construction]||'?')+graspText+' · '+(es.includes('vns')?'2 move types':(nameMove[r.move]||'?'))+' · '+(es.includes('sa')?'SA random':(nameStrategy[r.strategy]||'?'))+' · '+escapeLabel(r);
+      const isInstanceBest=Number.isFinite(Number(r.best))&&Number(r.best)===bestByInstance.get(r.instance);
+      const modern=Array.isArray(r.runDetails)&&Number.isInteger(r.runs);
+      const runs=modern?r.runs:null;
+      const countCell=modern?`<button class="run-detail-toggle" type="button" data-run-detail="${i}" aria-expanded="false" aria-controls="run-details-${i}">▸ ${runs} run${runs===1?'':'s'}</button>`:'<span title="Older notebook entry: averages are from search phases, not independent runs">legacy</span>';
+      const row=`<tr class="${isInstanceBest?'instance-best-row':''}"><td>${i+1}</td><td>${escapeHTML(r.instance)}${isInstanceBest?'<span class="best-tag" title="Lowest best-found tour value in the notebook for this instance; ties highlighted">★ Best</span>':''}</td><td title="Base seed ${r.seed}, ${r.iterations} iterations per run">${escapeHTML(cfgText)}</td><td>${countCell}</td><td><strong>${fmt(r.best)}</strong></td><td title="${modern?'Mean of independent run bests':'Legacy phase-based average'}">${Number.isFinite(r.average)?Number(r.average).toLocaleString('en-US',{maximumFractionDigits:1}):'—'}</td><td>${fmt(r.worst)}</td><td title="Proven optimum for ${escapeHTML(r.instance)}">${fmt(r.optimal)}</td><td title="(${fmt(r.best)} − ${fmt(r.optimal)}) / ${fmt(r.optimal)} × 100% — best across runs">${pct(gapToBKS(r.best,r.optimal))}</td><td title="(${Number(r.average).toLocaleString('en-US',{maximumFractionDigits:1})} − ${fmt(r.optimal)}) / ${fmt(r.optimal)} × 100% — ${modern?'mean independent-run gap':'legacy phase-based average gap'}">${pct(gapToBKS(r.average,r.optimal))}</td><td>${fmt(r.evals)}</td></tr>`;
+      if(!modern)return row;
+      const detailRows=r.runDetails.map(d=>`<tr><td>${d.run}</td><td>${d.seed}</td><td><strong>${fmt(d.best)}</strong></td><td>${pct(gapToBKS(d.best,r.optimal))}</td><td>${fmt(d.evaluations)}</td><td>${fmt(d.steps)}</td><td>${d.starts}</td></tr>`).join('');
+      const details=`<tr class="run-detail-row" id="run-details-${i}" hidden><td colspan="11"><p class="run-detail-caption">Independent runs, each with a new seed and full ${fmt(r.iterations)}-iteration budget. The average objective and average gap are calculated from these run-best values.</p><div class="table-wrap"><table class="run-detail-table"><thead><tr><th>Run</th><th>Seed</th><th>Best found</th><th>Gap to BKS</th><th>Evaluations</th><th>Iterations</th><th>Starts</th></tr></thead><tbody>${detailRows}</tbody></table></div></td></tr>`;
+      return row+details;
+    }).join('');
+  }
+  function csvDownload(filename,lines){const blob=new Blob([lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
+  function exportCSV(){if(!experimentRecords.length){toast('Run an experiment before exporting.');return}
+    const cols=['date','instance','construction','alpha','graspRclPct','graspRclMaxCities','move','strategy','iterations','runs','escape','starts','trigger','perturbCount','perturbationsTotal','perturbPct','perturbSize','stallLimit','tabuPct','tabuMax','saT0','saDecay','vnsFirst','vnsSecond','seed','initial','best','average','worst','phases','optimal','bestGapToBKSPercent','averageGapToBKSPercent','evals','accepted','worsening','steps','elapsedMs','runBestValues','runSeeds'];
+    const csv=[cols.join(','),...experimentRecords.map(r=>cols.map(k=>JSON.stringify(k==='bestGapToBKSPercent'?Number(gapToBKS(r.best,r.optimal).toFixed(4)):k==='averageGapToBKSPercent'?Number(gapToBKS(r.average,r.optimal).toFixed(4)):k==='runBestValues'?(r.runDetails||[]).map(d=>d.best).join(';'):k==='runSeeds'?(r.runDetails||[]).map(d=>d.seed).join(';'):(r[k]??''))).join(','))];
+    csvDownload('TSP_heuristic_experiments.csv',csv);
+  }
+  function exportRunsCSV(){
+    const cols=['experiment','date','instance','run','seed','iterations','starts','initial','best','runBestGapToBKSPercent','evaluations','accepted','worsening','perturbations','phases'];
+    const rows=experimentRecords.flatMap((r,i)=>(r.runDetails||[]).map(d=>[i+1,r.date,r.instance,d.run,d.seed,d.steps,d.starts,d.initial,d.best,Number(gapToBKS(d.best,r.optimal).toFixed(4)),d.evaluations,d.accepted,d.worsening,d.perturbations,d.phases]));
+    if(!rows.length){toast('No independent-run details yet. Run a new experiment.');return}
+    csvDownload('TSP_independent_runs.csv',[cols.join(','),...rows.map(x=>x.map(v=>JSON.stringify(v??'')).join(','))]);
+  }
+  function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.classList.remove('show'),3000)}
+  function syncConstruction(){const v=document.querySelector('input[name="construction"]:checked').value,p=Number($('alpha').value),n=instance.points.length,k=graspRclSizeForPct(p,n);$('alpha-container').classList.toggle('hidden',v!=='grasp');$('alpha-label').textContent=p+'%';$('grasp-rcl-summary').textContent=`RCL: up to ${Math.min(k,n-1)} of ${n} cities (the nearest unvisited cities). When fewer than ${k} remain, all remaining cities enter the RCL.`}
+  function syncStrategy(){const v=document.querySelector('input[name="strategy"]:checked').value;$('strategy-description').textContent=v==='best'?'Examine every move in the neighborhood; select the one giving the largest improvement.':v==='first'?'Try moves in random order; accept the first improvement.':'Examine every move in the neighborhood and randomly select one that improves the solution.'}
+  function syncEscape(){
+    const es=selectedEscapes(),trigger=document.querySelector('input[name="trigger"]:checked').value;
+    $('escape-counter').textContent=`${es.length} / 2 selected`;
+    $('multi-container').classList.toggle('hidden',!es.includes('multistart'));
+    $('perturb-container').classList.toggle('hidden',!es.includes('perturb'));
+    $('tabu-container').classList.toggle('hidden',!es.includes('tabu'));
+    $('sa-container').classList.toggle('hidden',!es.includes('sa'));
+    $('vns-container').classList.toggle('hidden',!es.includes('vns'));
+    $('strategy-override').classList.toggle('hidden',!es.includes('sa'));
+    $('strategy-sa-note').classList.toggle('hidden',!es.includes('sa'));
+    $('strategy-group').classList.remove('hidden');
+    $('strategy-group').classList.toggle('strategy-disabled',es.includes('sa'));
+    all('input[name="strategy"]').forEach(x=>x.disabled=es.includes('sa')||Boolean(session&&!session.done));
+    const useVNS=es.includes('vns');
+    $('single-move-choices').classList.toggle('hidden',useVNS);
+    $('vns-move-choices').classList.toggle('hidden',!useVNS);
+    $('vns-move-note').classList.toggle('hidden',!useVNS);
+    const vnsSelected=new Set([$('vns-first').value,$('vns-second').value]);
+    all('.vns-move-check').forEach(e=>e.checked=vnsSelected.has(e.value));
+    $('temperature-legend').classList.toggle('hidden',!es.includes('sa'));
+    $('chart-description').textContent=(es.includes('sa')?'Objective values (left axis) and SA temperature (right axis). Each multi-start resets T to T₀.':'Current and best objective values during the search.')+' The graph shows one run at a time (current or last run); the notebook summarizes all runs.';
+    $('vns-order-label').textContent=es.includes('sa')?'TWO MOVE TYPES (RANDOM CHOICE EACH ITERATION)':'MOVE TYPES IN ORDER';
+    $('scheduled-container').classList.toggle('hidden',trigger!=='scheduled');
+    $('stagnation-container').classList.toggle('hidden',trigger!=='stagnation');
+    const B=Number($('iterations').value)||1,R=Number($('runs-count').value)||1,N=Number($('starts-count').value)||1,P=Number($('perturb-count').value)||1;
+    $('total-budget-summary').textContent=`${R.toLocaleString()} run${R===1?'':'s'} × ${B.toLocaleString()} iterations = ${(R*B).toLocaleString()} total search iterations.`;
+    $('multi-summary').textContent=B>=N?`${B.toLocaleString()} iterations per run / ${N} starts = ${Math.floor(B/N)}–${Math.ceil(B/N)} iterations per start, repeated for ${R} run${R===1?'':'s'}.`:'Choose no more starts than iterations per run.';
+    const perturbPct=Number($('perturb-size').value);
+    const perturbNodes=perturbNodesForPct(perturbPct,instance.points.length);
+    $('perturb-size-label').textContent=perturbPct+'%';
+    $('perturb-nodes-summary').textContent=`${perturbNodes} of ${instance.points.length} cities will be removed and randomly reinserted (rounded to nearest city).`;
+    $('sa-temp-label').textContent=Math.round(Math.pow(10,Number($('sa-temp').value))).toLocaleString('en-US');
+    $('sa-decay-label').textContent=Number($('sa-decay').value).toFixed(3);
+    const pct=Number($('tabu-pct').value),n=instance.points.length;
+    $('tabu-pct-label').textContent=pct+'%';
+    $('tabu-size-summary').textContent=`FIFO capacity: ${tabuCapacity(pct,n)} of ${n} cities (rounded up).`;
+    $('scheduled-summary').textContent=P<B-(es.includes('multistart')?Math.max(0,N-1):0)?`${P} perturbations, distributed over available intervals in the shared budget.`:'Choose fewer perturbations; leave one search interval per restart/perturbation.';
+  }
+  function onEscapeChange(event){
+    if(selectedEscapes().length>2){event.target.checked=false;toast('Select at most two ways to escape local optima.');}
+    syncEscape();
+  }
+  function syncPerturbRange(){syncEscape();syncConstruction()}
+  function setView(v){view=v;for(const x of ['current','best','reference'])$('view-'+x).classList.toggle('active',v===x);drawTour()}
+  function init(){
+    const select=$('instance');for(const item of INSTANCES){const opt=document.createElement('option');opt.value=item.id;opt.textContent=`${item.name} · ${item.points.length} cities${item.family==='TSPLIB95'?' (TSPLIB)':''}`;select.add(opt)}
+    select.value=instance.id;select.addEventListener('change',()=>{reset();setInstance(select.value);syncPerturbRange()});
+    all('input[name="construction"]').forEach(el=>el.addEventListener('change',syncConstruction));$('alpha').addEventListener('input',syncConstruction);
+    all('input[name="strategy"]').forEach(el=>el.addEventListener('change',syncStrategy));
+    all('input[name="escape"]').forEach(el=>el.addEventListener('change',onEscapeChange));all('input[name="trigger"]').forEach(el=>el.addEventListener('change',syncEscape));
+    for(const id of ['iterations','runs-count','starts-count','perturb-count','perturb-size','sa-temp','sa-decay','tabu-pct'])$(id).addEventListener('input',syncEscape);
+    for(const id of ['vns-first','vns-second'])$(id).addEventListener('change',syncEscape);
+    // Keep click-to-read explanations inside the viewport, also on phones.
+    all('.info-tip').forEach(t=>t.addEventListener('toggle',()=>{
+      const panel=t.querySelector('.info-panel');if(!panel)return;
+      panel.style.transform='';
+      if(!t.open)return;
+      all('.info-tip').forEach(other=>{if(other!==t)other.open=false});
+      panel.style.left='0';panel.style.right='auto';
+      const bounds=panel.getBoundingClientRect();let shift=0;
+      if(bounds.right>window.innerWidth-12)shift=window.innerWidth-12-bounds.right;
+      if(bounds.left+shift<12)shift=12-bounds.left;
+      panel.style.transform=`translateX(${shift}px)`;
+    }));
+    document.addEventListener('click',event=>{if(!event.target.closest('.info-tip'))all('.info-tip').forEach(t=>t.open=false)});
+    $('run').addEventListener('click',play);
+    $('export').addEventListener('click',exportCSV);$('export-runs').addEventListener('click',exportRunsCSV);
+    $('experiment-rows').addEventListener('click',e=>{const btn=e.target.closest('button[data-run-detail]');if(!btn)return;const tr=$('run-details-'+btn.dataset.runDetail);if(!tr)return;tr.hidden=!tr.hidden;btn.setAttribute('aria-expanded',String(!tr.hidden));const runs=experimentRecords[Number(btn.dataset.runDetail)]?.runs||1;btn.textContent=(tr.hidden?'▸':'▾')+' '+runs+' run'+(runs===1?'':'s');});
+    $('clear-history').addEventListener('click',()=>{experimentRecords=[];try{localStorage.removeItem('tsp-heuristic-lab-records')}catch(_){}renderTable();toast('Experiment notebook cleared.')});
+    for(const v of ['current','best','reference'])$('view-'+v).addEventListener('click',()=>setView(v));
+    $('show-reference').addEventListener('change',e=>{showReference=e.target.checked;drawTour()});
+    window.addEventListener('resize',()=>{drawTour();drawChart()});
+    // Classroom testing interface (not used by gameplay itself).
+    window.TSPHeuristicLab={instances:INSTANCES,dist,rngOf,graspRclSizeForPct,gapToBKS,constructTour,routeCost,delta,applyMove,allMoves,randomMove,chooseImprovement,randomAdmissibleMove,touchedCities,tabuCapacity,saTemperature,selectedEscapes,getInstance:()=>instance,getSession:()=>session,getRecords:()=>experimentRecords,seedForRun,begin,advance,reset,setInstance,perturbTour,perturbNodesForPct,startBoundaries,perturbBoundaries,safePerturbBoundaries};
+    setInstance(instance.id);syncConstruction();syncStrategy();syncPerturbRange();renderTable();update();
+  }
+  init();
+})();
+</script>
+</body>
+</html>
